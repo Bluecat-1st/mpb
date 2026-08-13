@@ -1,0 +1,30 @@
+{
+  "name": "mindustry",
+  "version": "0.2.4",
+  "description": "headless mindustry!",
+  "main": "mindustry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/squi2rel/node-mindustry.git"
+  },
+  "keywords": [
+    "mindustry"
+  ],
+  "author": "squirrel",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/squi2rel/node-mindustry/issues"
+  },
+  "homepage": "https://github.com/squi2rel/node-mindustry#readme",
+  "dependencies": {
+    "js-crc": "^0.3.0",
+    "jsonrepair": "^3.12.0",
+    "lz4js": "^0.2.0",
+    "pako": "^2.1.0",
+    "tinycolor2": "^1.6.0",
+    "vec2": "^1.6.1"
+  }
+}

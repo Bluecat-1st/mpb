@@ -1,0 +1,43 @@
+{
+  "name": "mpb",
+  "version": "0.0.1",
+  "description": "A Mindustry bot made in JS/TS that I hope that it will be able to autonomusly play Mindustry.",
+  "keywords": [
+    "Mindustry",
+    "Bot"
+  ],
+  "license": "ISC",
+  "author": "Bluecat",
+  "type": "module",
+  "main": "src/core.ts",
+  "scripts": {
+    "start": "tsc && node dist/core.js",
+    "build": "tsc",
+    "runOld": "node dist/headless.js",
+    "headless": "tsx src/headless.ts",
+    "gui": "tsx src/gui/index.ts"
+  },
+  "dependencies": {
+    "js-crc": "^0.3.1",
+    "jsonrepair": "^3.15.0",
+    "lz4": "^0.6.5",
+    "lz4js": "^0.2.0",
+    "pako": "^2.2.0",
+    "tsx": "^4.23.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "ts-renderer": "github:Bluecat-1st/ts-renderer",
+    "@kmamal/sdl": "^0.11.13",
+    "@types/lz4": "^0.6.4",
+    "@types/lz4js": "^0.2.2",
+    "@types/node": "^25.9.5",
+    "@types/pako": "^2.0.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "@kmamal/sdl@0.11.13": true,
+    "github:Bluecat-1st/ts-renderer#1a02ba48cb4febaf1cd0f209b08fbd21af2b3f1a": true,
+    "lz4@0.6.5": true
+  }
+}

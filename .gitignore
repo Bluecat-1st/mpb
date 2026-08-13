@@ -1,0 +1,10 @@
+dist
+logs/*
+node_modules
+1591368647700.msch
+node-mindustry-main.zip
+package-lock.json
+preview.log
+previewSchm.sh
+src/gui
+src/scemPreview
