@@ -1,11 +1,10 @@
-import { Tiles, Tile } from "./Tiles.js";
-import { DataStream } from "./DataStream.js";
-import { SaveIO } from "./SaveIO.js";
-import Pako from "pako";
-import jsCrc from 'js-crc';
-import type { byte, int } from "./primitives.js";
-import { Build } from "./Build.js";
 import type { NetClient } from "./client.js";
+import type { int } from "./primitives.js";
+import { DataStream } from "./DataStream.js";
+import { Tiles, Tile } from "./Tiles.js";
+import { SaveIO } from "./SaveIO.js";
+import { Build } from "./Build.js";
+import Pako from "pako";
 
 export class World {
     tiles;

@@ -1,14 +1,15 @@
-import { packets as Packets } from "./Packets.js";
-import { Utils } from "./Utills.js";
-import { Controller } from "./Controller.js";
-import { SchemeIO } from "./ScemIO.js";
-import { say, throwError, warn } from './textFormater.js';
-import { TypeIO } from "./TypeIO.js";
 import type { float, int, short, byte } from "./primitives.js";
 import type { NetClient, Unit } from "./client.js";
 import type { DataStream } from "./DataStream.js";
 import type { Plan } from "./TypeIO.js";
-import { UnitIO } from "./UnitIO.js";
+import type { Tile } from "./Tiles.js";
+import { say, throwError, warn } from './textFormater.js';
+import { packets as Packets } from "./Packets.js";
+import { Controller } from "./Controller.js";
+import { config } from "./botConfig.js";
+import { SchemeIO } from "./ScemIO.js";
+import { TypeIO } from "./TypeIO.js";
+import { Utils } from "./Utills.js";
 
 export class Player {
 	name?:string
@@ -36,7 +37,9 @@ export class Player {
 		setTimeout(() => {
 			this.interval = setInterval(() => this.tick(), nc.config?.csTime ?? this.tickTime)
 		}, 100);
-		//this.setupListeners();
+		if (config.setupPlayerListeners){
+			this.setupListeners();
+		}
 	}
 	read(buf:DataStream){
 		//buf.skip(1); // I don't know what I'm doing...
@@ -76,9 +79,7 @@ export class Player {
 			tile.setBlock(p.result!);
 			tile.build[0].team = p.team!;
 			tile.build[0].rotation = p.rotation!;
-			/*
-			tile.build[0].atConstruct = true
-			*/
+			tile.build[0].atConstruct = true;
 		});
 		this.nc.on("BeginBreakCallPacket", (p:InstanceType<typeof Packets.BeginBreakCallPacket>) => {
 			let tile = this.nc.game.world.get(p.x!, p.y!);
@@ -89,9 +90,7 @@ export class Player {
 				warn(`No building at [italic](${p.x},${p.y})[reset][yellow].`);
 				return;
 			}
-			/*
-			tile.build[0].atConstruct = true
-			*/
+			tile.build[0].atConstruct = true;
 		});
 		this.nc.on("ConstructFinishCallPacket", (p:InstanceType<typeof Packets.ConstructFinishCallPacket>) => {
 			const tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
@@ -103,7 +102,7 @@ export class Player {
 				return;
 			}
 			tile.setBlock(p.block!);
-			//tile.build[0].atConstruct = false
+			tile.build[0].atConstruct = false;
 			for(let i = 0; i < this.controller.plans.length; i++){
 				let plan = this.controller.plans[i]
 				if(!plan) continue;
@@ -121,7 +120,7 @@ export class Player {
 				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
 				return;
 			}
-			//tile.build[0].atConstruct = false;
+			tile.build[0].atConstruct = false;
 			for(let i = 0; i < this.controller.plans.length; i++){
 				let plan = this.controller.plans[i]
 				if(!plan) continue;
@@ -214,7 +213,7 @@ export class Player {
 		p.baseRotation = this.unit.baserot;
 		p.xVelocity = this.unit.vel!.x;
 		p.yVelocity = this.unit.vel!.y;
-		p.mining = this.unit.miningpos;
+		p.mining = this.unit.miningpos as Tile; // I don't really care right now...
 		p.boosting = this.unit.boost;
 		p.shooting = this.unit.shoot;
 		p.chatting = this.unit.chat;

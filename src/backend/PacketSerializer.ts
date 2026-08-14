@@ -7,7 +7,7 @@ import { say, warn, throwError } from './textFormater.js';
 import type { byte, short } from './primitives.js';
 import { config } from './botConfig.js';
 import LZ4 from 'lz4';
-import { PacketLogger } from './logger.js';
+import { Logger } from './logger.js';
 
 export class PacketSerializer {
     #temp;
@@ -81,7 +81,7 @@ export class PacketSerializer {
     
             // Save the raw unparsed packet bytes for analysis
             const rawBytes = this.#temp._getBuffer().subarray(0, this.#temp.limit());
-            PacketLogger.saveFailedPacket(id, rawBytes, err);
+            Logger.saveFailedPacket(id, rawBytes, err);
 
             if (err instanceof Error) {
                 throwError(err.stack ?? err.message);

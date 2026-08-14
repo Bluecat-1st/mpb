@@ -1,4 +1,4 @@
-import type { float, int, short } from "./primitives.js";
+import type { int } from "./primitives.js";
 
 export class Point2 {
     x:int;

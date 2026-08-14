@@ -22,7 +22,7 @@ import { World } from "./World.js";
 import { Utils } from "./Utills.js";
 import { formatText, say, throwError, warn } from './textFormater.js';
 import { byte, type nullableString, type float, type int, type long, type short } from "./primitives.js";
-import { PacketLogger } from "./logger.js";
+import { Logger } from "./logger.js";
 
 export interface Unit {
     position?:{
@@ -339,9 +339,9 @@ export class NetClient extends EventEmitter {
         } catch (e) {
             console.error(e);
             if (e instanceof Error){
-                PacketLogger.log(`Error handleing packet ${namePacket(packet)}: ${e.stack ?? e.message}`, true);
+                Logger.log(`Error handleing packet ${namePacket(packet)}: ${e.stack ?? e.message}`, true);
             }else{
-                PacketLogger.log(`Error handleing packet ${namePacket(packet)}: ${e}`, true);
+                Logger.log(`Error handleing packet ${namePacket(packet)}: ${e}`, true);
             }
             //throw e;
         }
@@ -413,7 +413,7 @@ export class NetClient extends EventEmitter {
         global.contentMap = cmap;
         console.log(`Finished loading content.`);
 
-        SaveIO.readMap(buf, this.game.world);
+        SaveIO.readMap(buf, this.game.world); // Known to fail. A WIP
         buf.printStatus(`Read map`);
 
         this.game.world.teamBlocks = SaveIO.readTeamBlocks(buf);

@@ -5,7 +5,7 @@ import { namePacket } from "./Packets.js";
 import { throwError } from "./textFormater.js";
 import { Utils } from "./Utills.js";
 
-export class PacketLogger {
+export class Logger {
     private static sessionDir: string | null = null;
 
     /** Initializes a directory for the current runtime session */

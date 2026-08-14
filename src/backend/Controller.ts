@@ -199,11 +199,21 @@ export class Controller{
 		this.pointerX = x;
 		this.pointerY = y;
 	}
+	/**
+	 * Move by an amount. Use {@link moveTo} to move to a location.
+	 * 
+	 * Note: Movement does not work yet, so this function does not do anything yet.
+	 */
 	move(x:float, y:float){
 		//say(`[Controller.move] ${x},${y}`);
 		this.xDelta = (this.xDelta + x) as float;
 		this.yDelta = (this.yDelta + y) as float;
 	}
+	/**
+	 * Move to a location. Use {@link move} to move by an amount.
+	 * 
+	 * Note: Movement does not work yet, so this function does not do anything yet.
+	 */
 	moveTo(x:number, y:number, speed = 8, range = 16){
 		this.status = "move";
 		this.speed = speed;
@@ -211,12 +221,22 @@ export class Controller{
 		this.targetY = y;
 		this.range = range;
 	}
+	/** 
+	 * Follow a player by name.
+	 * 
+	 * Currently won't work as name sensing has not been added.
+	 */
 	follow(playerName:string, speed = 8, range = 8){
 		this.status = "follow";
 		this.speed = speed;
 		this.playerName = playerName;
 		this.range = range;
 	}
+	/**
+	 * Assist a player by name.
+	 * 
+	 * Currently won't work as name sensing has not been added.
+	 */
 	assist(playerName:nullableString = null){
 		if(playerName){
 			this.assisting = true;

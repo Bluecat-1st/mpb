@@ -19,6 +19,7 @@ export const config = {
     },
     dataStreamStatusPrint:true,
     hideIncompletPacketWarning:false,
+    setupPlayerListeners:false,
     server:{
         /*
         IPs:

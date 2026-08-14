@@ -845,7 +845,7 @@ export class BlockIO {
 		
 		let result = {
 		    health,
-		    rotation:(rotation as int),
+		    rotation:<int>rotation,
 		    team,
 		    ver,
 		    moduleBitmask,
@@ -855,7 +855,8 @@ export class BlockIO {
 		    power,
 		    liquids,
 		    eff,
-		    opteff
+		    opteff,
+			atConstruct:false
 		}
 
 		return result

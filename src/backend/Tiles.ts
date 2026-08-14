@@ -1,6 +1,6 @@
 import type { BlockIO } from './BlockIO.js';
+import type { byte, int } from './primitives.js';
 import blocksParams from './json/BlocksParams.json' with {type:'json'};
-import type { int } from './primitives.js';
 
 
 export class Tiles {
@@ -12,7 +12,7 @@ export class Tiles {
         this.height = h;
         this.array = new Array(w*h);
     }
-    set(x:number, y:number, tile:any) {
+    set(x:number, y:number, tile:Tile) {
         this.array[y * this.width + x] = tile;
         this.array[y * this.width + x]!.tiles = this;
     }
@@ -32,8 +32,8 @@ export class Tile {
     overlay;
     block:string;
     build?:ReturnType<typeof BlockIO.readAll>;
-    data:any;
-    tiles:any;
+    data?:byte;
+    tiles?:Tiles;
     atConstruct = false;
     refBuild:any;
     constructor(x:int, y:int, floor:string, overlay:string, block:string) {
@@ -69,8 +69,8 @@ export class Tile {
 
         for (let x = startX; x < endX; x++) {
             for (let y = startY; y < endY; y++) {
-                let tile = this.tiles.get(x, y);
-                if(tile != null){
+                let tile = this.tiles?.get(x, y);
+                if(tile){
                     tile.refBuild = this;
                 }
             }
@@ -79,7 +79,7 @@ export class Tile {
     hasBuild(){
         return Boolean(this.build) || Boolean(this.refBuild);
     }
-    setData(data:any){
+    setData(data:byte){
         this.data = data;
     }
     toPosString(){

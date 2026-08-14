@@ -10,14 +10,14 @@ export class Utils{
 	 * @param contentID - The content ID.
 	 */
 	static getContentByID(contentType:string,contentID:nullableShort):nullableString{
-		return null;
+		//return null;
 		if (!global.contentMap) throwError(`Content map is not initalized!`);
 		const map = global.contentMap[contentType];
 		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);
 		if (contentID === null) return null;
-		//const content = map[contentID];
-		//if (!content) return null;
-		//return content;
+		const content = map[contentID];
+		if (!content) return null;
+		return content;
 	}
 	static getContentID(contentType:string,contentName:nullableString):nullableShort{
 		if (!global.contentMap) throwError(`Content map is not initalized!`);

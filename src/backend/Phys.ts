@@ -2,6 +2,9 @@ import type { Unit } from './client.js';
 import unitProps from './json/UnitProps.json' with {type:'json'};
 import type { float } from './primitives.js';
 
+/**
+ * Does this do anything? If movement does not work, then I don't think this should work.
+ */
 export class Phys{
 	static getProps(unit:Unit){
 		if (!global.contentMap.unit){return}

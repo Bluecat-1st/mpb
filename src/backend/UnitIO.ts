@@ -7,7 +7,7 @@ import type { byte, short } from "./primitives.js";
 import { say } from "./textFormater.js";
 
 export class UnitIO {
-    static read(buf:DataStream, type:byte, rev?:any):Unit{
+    static read(buf:DataStream, type:byte, rev?:boolean):Unit{
 		let revis;
 		if(rev){
 			revis = buf.getShort();
@@ -246,7 +246,7 @@ export class UnitIO {
 		  "36": 1,
 		  "39": 1
 		}
-		return r[t] as short;
+		return r[t] as short|undefined;
 	}
 
 	static writeMain(buf:DataStream, unit:any) {

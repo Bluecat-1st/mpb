@@ -1,11 +1,11 @@
 // src/backend/net.ts
-import net from "net";
-import { DataStream } from "./DataStream.js";
 import type { PacketSerializer } from "./PacketSerializer.js";
-import dgram from "dgram";
-import { throwError } from "./textFormater.js";
 import type { int, short } from "./primitives.js";
-import { PacketLogger } from "./logger.js";
+import { throwError } from "./textFormater.js";
+import { DataStream } from "./DataStream.js";
+import { Logger } from "./logger.js";
+import dgram from "dgram";
+import net from "net";
 
 export class FrameworkMessage {
     static discoverHost = class extends FrameworkMessage { };
@@ -170,7 +170,7 @@ export class UDPConnection {
                 }catch(e){
                     if (!obj) throw e;
                     if (obj instanceof FrameworkMessage) throw e;
-                    PacketLogger.saveFailedPacket(obj._id,d,e);
+                    Logger.saveFailedPacket(obj._id,d,e);
                     throw e;
                 }
             });
@@ -184,7 +184,7 @@ export class UDPConnection {
                 }catch(e){
                     if (!obj) throw e;
                     if (obj instanceof FrameworkMessage) throw e;
-                    PacketLogger.saveFailedPacket(obj._id,msg,e);
+                    Logger.saveFailedPacket(obj._id,msg,e);
                     throw e;
                 }
             });

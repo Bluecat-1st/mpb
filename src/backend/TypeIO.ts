@@ -603,16 +603,16 @@ export class TypeIO {
         
         if (type == 0) {
             let id = buf.getInt();
-            return [type, id];
+            return [0, id] as [0, int];
         } else if (type == 1) {
             buf.skip(4);
-            return [type];
+            return [1] as [1];
         } else if (type == 3) {
             let pos = buf.getInt();
-            return [type, pos];
+            return [3, pos] as [3, int];
         } else if (type == 4 || type == 6 || type == 7 || type == 8 || type == 9) {
-            let hasAttack = buf.get(); // read.bool()
-            let hasPos = buf.get();    // read.bool()
+            let hasAttack = buf.getBoolean();
+            let hasPos = buf.getBoolean();
             let pos;
             
             if (hasPos) {
@@ -631,7 +631,11 @@ export class TypeIO {
                 id = buf.get();
             }
             
-            let attackinfo: Record<string, any> = {};
+            let attackinfo: {
+                build?:int,
+                unit?:int,
+                vec?:{x:float,y:float}
+            } = {};
             //let ctype: Record<number, any> = {};
             let ctype: byte[] = [];
             
@@ -652,7 +656,7 @@ export class TypeIO {
                 }
             }
             
-            let stances: (byte|null)[] = [];
+            let stances: nullableByte[] = [];
             if (type == 8) {
                 stances.push(this.readStance(buf));
             } else if (type == 9) {
@@ -674,12 +678,12 @@ export class TypeIO {
                 stances
             };
 
-            return [type, result];
+            return [type, result] as [4|6|7|8|9,typeof result];
         } else if (type == 5) {
-            return [type]; // AssemblerAI (No properties written)
+            return [5] as [5]; // AssemblerAI (No properties written)
         } else {
             // Fallback matching the Java else block (e.g. Type 2 / Default GroundAI)
-            return [type];
+            return [type] as [byte];
         }
     }
     static writeController(buf:DataStream, controller:[byte, any]) {
@@ -797,7 +801,7 @@ export class TypeIO {
 
             buf.putShort(id);
             buf.put(ver);
-            BlockIO.writeAll(buf, block, (blocksTypes as Record<string,string>)[global.contentMap['block']![id]!]!, ver);
+            BlockIO.writeAll(buf, block, Utils.getContentByID('block',id)!, ver);
         } else {
             UnitIO.write(buf, payload, true);
         }
