@@ -28,7 +28,12 @@ export class Player {
 		this.nc = nc;
 		this.id = id;
 
-		this.unit = {};
+		// If the PlayerSpawnCallPacket gets called before NetClient.loadWorld().
+		if (nc.units && nc.units[id]){
+			this.unit = nc.units[id];
+		}else{
+			this.unit = {};
+		}
 
 		this.controller = new Controller(this);
 

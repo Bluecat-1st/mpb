@@ -106,7 +106,8 @@ export class TCPConnection {
                 if (readBuffer.length < 2) {
                     return null
                 }
-                this.#objectLength = readBuffer.readInt16BE()
+                //this.#objectLength = readBuffer.readInt16BE()
+                this.#objectLength = readBuffer.readUInt16BE()
             }
             let length = this.#objectLength;
             if (length <= 0) {

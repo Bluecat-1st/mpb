@@ -2,7 +2,7 @@
 import fs from "fs";
 import path from "path";
 import { namePacket } from "./Packets.js";
-import { throwError } from "./textFormater.js";
+import { cleanFormatedText, throwError } from "./textFormater.js";
 import { Utils } from "./Utills.js";
 
 export class Logger {
@@ -29,8 +29,18 @@ export class Logger {
             // Write the raw bytes to file
             fs.writeFileSync(filePath, rawData);
 
+            if (typeof error !== 'string'){
+                if (error instanceof Error){
+                    error = error.stack ?? error.message;
+                }else if (typeof error === 'object' && error !== null){
+                    error = error.toString();
+                }else{
+                    error = `Unknown error type!`;
+                }
+            }
+
             // Append metadata to a text log file in the same session folder
-            this.log(`Packet ${namePacket(packetId)} (ID: ${packetId}) failed. Saved raw data to ${fileName}. Error: ${error}`,true);
+            this.log(`Packet ${namePacket(packetId)} (ID: ${packetId}) failed. Saved raw data to ${fileName}. Error: ${cleanFormatedText(error as string)}`,true);
         } catch (e) {
             console.error("Failed to write packet log:", e);
         }

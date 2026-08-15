@@ -11,6 +11,8 @@ import { formatValue } from "./Utills.js";
 const { crc32 } = jsCrc;
 import type { PacketSerializer } from "./PacketSerializer.js"
 
+say(`Loading packets...`);
+
 export enum KickReason {
     kick, clientOutdated, serverOutdated, banned, gameover, recentKick,
     nameInUse, idInUse, nameEmpty, customClient, serverClose, vote, typeMismatch,
@@ -50,7 +52,11 @@ export class StreamBuilder {
         return this.length >= this.total;
     }
     build() {
-        let s = new (Packets.get(this.type)!)();
+        const p = Packets.get(this.type);
+        if (!p){
+            throwError(`Failed to build packet [acid]${this.type}[]!`);
+        }
+        let s = new p();
         s._stream = this.stream = Buffer.concat(this.#buf);
         return s;
     }
@@ -567,7 +573,7 @@ class ClientPlanSnapshotReceivedCallPacket extends Packet {
     groupId?:int;
     plans?:ReturnType<typeof TypeIO.readPlans>;
     write(buf:DataStream){
-        TypeIO.writeEntity(buf,this.player!);
+        //TypeIO.writeEntity(buf,this.player!);
         buf.putInt(this.groupId!);
         TypeIO.writePlans(buf,this.plans as Plan[]);
     }
@@ -1717,6 +1723,8 @@ class SendMessageCallPacket2 extends Packet {
         this.playersender = TypeIO.readEntity(buf)!;
     }
     handleClient(n:NetClient) {
+        //say(this.message!);
+        //say(this.unformatted!);
         //n.sendMessage(message, unformatted, playersender)
     }
 }
@@ -1827,6 +1835,14 @@ class SetPositionCallPacket extends Packet {
     read(buf:DataStream):void{
         this.x = buf.getFloat();
         this.y = buf.getFloat();
+    }
+    handleClient(nc: NetClient): void {
+        if (!nc.player) return;
+        say(`[SetPositionCallPacket] Snapping to [yellow](${this.x},${this.y})`);
+        nc.player.unit.position = {
+            x:this.x!,
+            y:this.y!
+        }
     }
 }
 registerPacket(SetPositionCallPacket);
@@ -2264,9 +2280,10 @@ registerPacket(UnitEnteredPayloadCallPacket);
 class UnitSpawnCallPacket extends Packet {
     _id = 157;
     _hidden = config.hideGroup.units;
-    read(buf: DataStream): void {
-        TypeIO.readUnitContainer(buf);
-    }
+    _lastUpdatedFor = 159;
+    //read(buf: DataStream): void {
+    //    TypeIO.readUnitContainer(buf);
+    //}
 }
 registerPacket(UnitSpawnCallPacket);
 
@@ -2454,6 +2471,7 @@ export const packets = {
     get : (n:number) => Packets.get(n)
 }
 
+say(`Validating packets...`);
 const tempStream = DataStream.allocate(0);
 let packetCount = 0;
 let placeholderPacketCount = 0;
@@ -2494,8 +2512,10 @@ for (let i=0;i<255;i++){
 }
 say(`[white]${packetCount}[reset] packets loaded.`);
 if (placeholderPacketCount > 0){
-    say(`[white]${placeholderPacketCount}[reset] placeholder packets.`);
+    say(`[white]${placeholderPacketCount}[reset] placeholder packet${placeholderPacketCount === 1 ? '':'s'}.`);
 }
 if (packetsToUpdate > 0){
-    say(`[white]${packetsToUpdate}[reset] packets may need updating.`);
+    say(`[white]${packetsToUpdate}[reset] packet${packetsToUpdate === 1 ? '':'s'} may need updating.`);
 }
+
+say(`Packets loaded.`);

@@ -17,9 +17,14 @@ export const config = {
         /** Building and decontructing */
         contruction:true,
     },
-    dataStreamStatusPrint:true,
+    dataStreamStatusPrint:false,
     hideIncompletPacketWarning:false,
+    /** None of the listeners work right now, so this can be left off. */
     setupPlayerListeners:false,
+    /** Removes color formating tags and some gliphs */
+    escapeMessageFormating:true,
+    /** Some people for some reason send messages with gliphs at the end I can get rid of using normal JS methods, so this whitelist forces them out, however it is a a cost of not being able to use Mindustry's icons/emojis without having to manualy whitelist them.... */
+    whitelistGliphFiltering:true,
     server:{
         /*
         IPs:

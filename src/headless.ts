@@ -1,10 +1,10 @@
 import type { packets as Packets } from "./backend/Packets.js";
 import type { float } from "./backend/primitives.js";
-import { config } from "./backend/botConfig.js";
 import { throwError, say, warn } from "./backend/textFormater.js";
 import { readObjectFancy, Utils } from "./backend/Utills.js";
 import { pingHost } from "./backend/PingHost.js";
 import { Mindustry } from "./backend/client.js";
+import { config } from "./backend/botConfig.js";
 
 const client = new Mindustry();
 client.createClient();
@@ -17,7 +17,6 @@ client.netClient.on("connect", () => {
     }
     say('Joining...');
     client.netClient.join("mpb (Bot)", "UUIDAAAAAAA=", "USIDAAAAAAA=");
-    //client.netClient.join("The caas_i_the_ai clone (mpb)", "UUIDAAAAAAA=", "USIDAAAAAAA=");
     say('Confirming connection...');
     client.netClient.connectConfirm();
 });
@@ -35,7 +34,12 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
         warn(`Empty message! (Safeguard 1)`);
         return;
     }
-    //p.unformatted = Utils.escapeGlyphs(Utils.escapeColors(p.unformatted));
+    if (config.whitelistGliphFiltering){
+        p.unformatted = p.unformatted.split('').filter((char)=>'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`-=[]\\;\',./~!@#$%^&*()_+{}|:"<>? '.includes(char)).join('');
+    }
+    if (config.escapeMessageFormating){
+        p.unformatted = Utils.escapeGlyphs(Utils.escapeColors(p.unformatted));
+    }
     say(`Excaped text: ${p.unformatted}`);
     if (p.playersender === -1){
         client.call.sendChatMessage(`Message from user [blue]-1[]: ${p.unformatted}`);
@@ -54,12 +58,12 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     throwError('client.netClient does not exist!');
                 }
                 if (ping) {
-                    client.netClient.sendChatMessage(`Ping: ${ping}ms`);
+                    client.call.sendChatMessage(`Ping: ${ping}ms`);
                     say(`Ping was requested and returned at [green]${ping}[reset]ms.`);
                 } else {
                     // First of all, how? Might as well play safe:
                     try {
-                        client.netClient.sendChatMessage(`Ping check timed out!`);
+                        client.call.sendChatMessage(`Ping check timed out!`);
                     } catch (err) {
                         console.error(err);
                     }
@@ -93,19 +97,19 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             }
             info += `\nloadWorldAttempted: ${client.netClient.loadWorldAttemped}\nloadWorldFinished: ${client.netClient.loadWorldFinished}`
             say(info);
-            client.netClient.sendChatMessage(info.replaceAll('\n', ' '));
+            client.call.sendChatMessage(info.replaceAll('\n', ' '));
         }else if (p.unformatted === 'mpb units') {
             console.log(Object.keys(client.netClient.units as object).join(', '));
-            client.netClient.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
+            client.call.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
         }else if (p.unformatted === 'mpb disconnect') {
-            client.netClient.sendChatMessage('Disconnecting...');
+            client.call.sendChatMessage('Disconnecting...');
             say(`Disconnecting...`);
             client.netClient.reset();
         }else if (p.unformatted.startsWith(`mpb say `)) {
             const arg = p.unformatted!.slice('mpb say '.length).trim();
             warn(arg);
             const text = `(By [blue]${p.playersender ?? 'unknown sender'}[white]) ${arg}`;
-            client.netClient.sendChatMessage(text ?? `[red]Error`);
+            client.call.sendChatMessage(text ?? `[red]Error`);
         }else if (p.unformatted === 'mpb respawn'){
             client.netClient.player?.respawn();
         }else if (p.unformatted.startsWith('mpb setPlayerVar ')){
@@ -113,21 +117,21 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             if (args.length !== 2) {
                 const msg = `Warning: Command setPlayerVar needs two arguments.`
                 warn(msg);
-                client.netClient.sendChatMessage(`[yellow]${msg}`);
+                client.call.sendChatMessage(`[yellow]${msg}`);
                 return;
             }
             const controller = client.netClient.player?.controller;
             if (!controller){
                 const err = `[red]Critical error: client.netClient.player.controller does not exist!`;
                 say(`[bold]${err}`);
-                client.netClient.sendChatMessage(err);
+                client.call.sendChatMessage(err);
                 return;
             }
             const param = (controller as any as Record<string, unknown>)[args[0]];
             if (!(args[0] in (controller as any as Record<string, unknown>))){
                 const err = `[white]${args[0]}[yellow] does not exist on client.netClient.player.controller`;
                 say(err);
-                client.netClient.sendChatMessage(err);
+                client.call.sendChatMessage(err);
                 return;
             }
             switch(typeof param){
@@ -140,7 +144,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     if ((!num && num!==0) || Number.isNaN(num)){
                         const err = `[red]Unable to parse number [white]${args[1]}[red].`;
                         say(err);
-                        client.netClient.sendChatMessage(err);
+                        client.call.sendChatMessage(err);
                         return;
                     }
                     (controller as any as Record<string, unknown>)[args[0]] = num;
@@ -155,7 +159,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     }else{
                         const err = `[red]Invalid boolian [white]${bool}[red].`;
                         say(err);
-                        client.netClient.sendChatMessage(err);
+                        client.call.sendChatMessage(err);
                         return;
                     }
                     break;
@@ -166,13 +170,13 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 case "function":{
                     const err = `[yellow]Param [white]${args[0]}[yellow] is of disallowed type [acid]${typeof param}[yellow].`;
                     say(err);
-                    client.netClient.sendChatMessage(err);
+                    client.call.sendChatMessage(err);
                     return;
                 }
                 case "object":{
                     const err = `[yellow]Param [white]${args[0]}[yellow] is of disallowed type [acid]${param === null ? 'null':'object'}[yellow].`;
                     say(err);
-                    client.netClient.sendChatMessage(err);
+                    client.call.sendChatMessage(err);
                     return;
                 }
             }
@@ -181,9 +185,9 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             client.netClient.player?.controller.assist(arg);
         }else if (p.unformatted === `mpb printUnitID`){
             if (client.netClient.player?.id){
-                client.netClient.sendChatMessage(`MPB's player ID is [acid]${client.netClient.player.id}`);
+                client.call.sendChatMessage(`MPB's player ID is [acid]${client.netClient.player.id}`);
             }else{
-                client.netClient.sendChatMessage(`[#f00]ERROR: MPB does not have a player ID, check [gray]netClient.loadWorld()[]!`);
+                client.call.sendChatMessage(`[#f00]ERROR: MPB does not have a player ID, check [gray]netClient.loadWorld()[]!`);
             }
         }else if (p.unformatted.startsWith('mpb pingPos ')){
             const args = p.unformatted!.slice('mpb pingPos '.length).split(' ');

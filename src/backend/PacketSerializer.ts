@@ -1,18 +1,22 @@
 // src/backend/PacketSerializer.ts
+import { say, warn, throwError, cleanFormatedText } from './textFormater.js';
+import { namePacket, packets as Packets, StreamChunk } from './Packets.js';
 import { decompressBlock, compressBlock, makeBuffer } from 'lz4js';
 import { DataStream } from './DataStream.js';
 import { FrameworkMessage } from './net.js';
-import { namePacket, packets as Packets, StreamChunk } from './Packets.js';
-import { say, warn, throwError } from './textFormater.js';
-import type { byte, short } from './primitives.js';
 import { config } from './botConfig.js';
-import LZ4 from 'lz4';
 import { Logger } from './logger.js';
+import { userInfo } from 'os';
+import type { byte, short } from './primitives.js';
+import type { NetClient } from './client.js';
+import LZ4 from 'lz4';
 
 export class PacketSerializer {
     #temp;
-    constructor() {
+    nc;
+    constructor(nc:NetClient) {
         this.#temp = DataStream.allocate(32768);
+        this.nc = nc;
     }
     read(buf: DataStream) {
         let id = buf.get(); // A little risky techlicly, but it should not fail unless something VERY wrong is happening.
@@ -84,8 +88,14 @@ export class PacketSerializer {
             Logger.saveFailedPacket(id, rawBytes, err);
 
             if (err instanceof Error) {
+                let e = cleanFormatedText(err.message);
+                e = e.replaceAll(userInfo().username,'<host>');
+                this.nc.game.call.sendChatMessage(`[#f00]Error parsing packet [acid]${namePacket(id)}[]: ${e}[#f00]!`);
+                this.nc.reset();
                 throwError(err.stack ?? err.message);
             } else {
+                this.nc.game.call.sendChatMessage(`[#f00]Unknown error parsing packet [acid]${namePacket(id)}[]!`)
+                this.nc.reset();
                 throw err;
             }
         }

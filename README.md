@@ -25,4 +25,4 @@ Other than that, things will change and we will see what happens with `mpb`. You
 
 ---
 
-Note: If you **really** want to run `mpb` on a public server, at least change the UUID so other's don't think it is me runninh `mpb` as I don't want to private or delete this repository because someone wanted to do something really dumb, but I will very much do so if I have to. **Listen to admins!**
+Note: If you **really** want to run `mpb` on a public server, at least change the UUID so other's don't think it is me running `mpb` as I don't want to private or delete this repository because someone wanted to do something really dumb, but I will very much do so if I have to. **Listen to admins!**

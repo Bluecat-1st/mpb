@@ -195,7 +195,7 @@ export class NetClient extends EventEmitter {
     loadWorldFinished = false;
     constructor(game: Mindustry) {
         super();
-        this.#client = new Client(8192, new PacketSerializer(), p => this.handleClientReceived(p));
+        this.#client = new Client(8192, new PacketSerializer(this), p => this.handleClientReceived(p));
         this.#client.on("timeout", () => {
             console.log("timeout!");
             this.reset();
