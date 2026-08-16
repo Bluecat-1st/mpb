@@ -24,6 +24,7 @@ import { formatText, say, throwError, warn } from './textFormater.js';
 import { byte, type nullableString, type float, type int, type long, type short } from "./primitives.js";
 import { Logger } from "./logger.js";
 import { DataAssetCache } from "./DataAssetType.js";
+import { config } from "./botConfig.js";
 
 export interface Unit {
     position?:{
@@ -154,8 +155,8 @@ export class Mindustry {
         this.world = new World();
         this.call = new Call(this);
         this.events = new Events();
-        this.utils = Utils;
-        TypeIO.setup(this.world);
+        this.utils = new Utils(this);
+        TypeIO.setup(this);
     }
     createClient() {
         this.netClient = new NetClient(this);
@@ -432,7 +433,7 @@ export class NetClient extends EventEmitter {
 
         // mindustry.net.NetworkIO.readRequiredAssets(InputStream)
         const amount = buf.getInt();
-        //say(`[readRequiredAssets] [acid]${amount}[] assets.`);
+        say(`[readRequiredAssets] [acid]${amount}[] assets.`);
         //console.log(buf._getBuffer());
         const result:string[] = [];
         for (let i=0;i<amount;i++){
@@ -442,9 +443,10 @@ export class NetClient extends EventEmitter {
         // Because I don't feel like implimenting the cache system, mpb will need to reqest the assets each map.
         const missing:short[] = [];
         for (let i=0;i<result.length;i++){
+            if (!config.getAssets) break;
             missing.push(<short>i); // I'm keep this here in case I ever do want to add the cache system...
         }
-        console.log(missing);
+        //console.log(missing);
         say(`[NetClient.loadRequiredAssets] Requesting [acid]${missing.length}[] asset(s) from the server.`);
         this.game.call.requestAssets(missing);
     }

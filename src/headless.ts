@@ -29,7 +29,8 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
     }
     say(`Message from chat:'[white]${p.unformatted}[reset]' from user [blue]${p.playersender}`);
     if (!p.unformatted) {
-        warn(`Empty message! (Safeguard 1)`);
+        //warn(`Empty message! (Safeguard 1)`);
+        say(p.message ?? `[#f00]No message!`);
         return;
     }
     if (config.whitelistGliphFiltering){
@@ -206,6 +207,8 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 client.call.pingLocation(x,y);
             }
             client.call.sendChatMessage(`Pinged location.`);
+        }else if (p.unformatted === 'mpb rtv'){
+            client.call.sendChatMessage(`/rtv`);
         }
     }, Math.floor(Math.random() * 1000));
 });

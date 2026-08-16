@@ -4,13 +4,27 @@ import type { float, int, nullableShort, nullableString, short } from "./primiti
 import { say, throwError, warn } from "./textFormater.js";
 
 export class Utils{
+	mindustry;
+	constructor(mindustry:Mindustry){
+		this.mindustry = mindustry;
+	}
 	/**
 	 * Get the content from it's ID.
 	 * @param contentType - The content type to get from.
 	 * @param contentID - The content ID.
+	 * @deprecated This is prone to failling, use the safer version from a instace of {@link Utils}.
 	 */
 	static getContentByID(contentType:string,contentID:nullableShort):nullableString{
-		//return null;
+		if (!global.contentMap) throwError(`Content map is not initalized!`);
+		const map = global.contentMap[contentType];
+		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);
+		if (contentID === null) return null;
+		const content = map[contentID];
+		if (!content) return null;
+		return content;
+	}
+	getContentByID(contentType:string,contentID:nullableShort):nullableString{
+		if (!this.mindustry.netClient?.player) return null;
 		if (!global.contentMap) throwError(`Content map is not initalized!`);
 		const map = global.contentMap[contentType];
 		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);

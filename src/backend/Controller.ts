@@ -36,6 +36,8 @@ export class Controller{
     playerName:nullableString;
 	selectedBlock:nullableString;
 	selectedRotation:int;
+	spin = false;
+	spinSpeed = 30;
 	constructor(player:Player){
 		this.player = player;
 
@@ -153,6 +155,9 @@ export class Controller{
 		this.player.unit.px = this.pointerX;
 		this.player.unit.py = this.pointerY;
 
+		if (this.spin){
+			this.player.unit.rotation += this.spinSpeed;
+		}
 		this.player.unit.rotation = (this.player.unit.rotation + this.rotationDelta) % 360;
 		if (this.player.unit.rotation < 0) {
 		  	this.player.unit.rotation += 360;

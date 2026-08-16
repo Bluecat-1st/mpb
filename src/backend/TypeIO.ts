@@ -9,6 +9,7 @@ import { say, throwError, warn } from "./textFormater.js";
 import { AdminAction } from "./Packets.js";
 import { formatValue, Utils } from "./Utills.js";
 import blocksTypes from './json/BlocksTypes.json' with {type:'json'};
+import type { Mindustry } from "./client.js";
 
 /** `[<MObject>TypeID, value]` */
 type readObjectReturn = 
@@ -57,9 +58,11 @@ export interface Plan {
 
 export class TypeIO {
     static world?:World;
+    static game?: Mindustry;
     /** Sets up some variables required for some operations to work */
-    static setup(world:World){
-        TypeIO.world = world;
+    static setup(mindustry:Mindustry){
+        TypeIO.world = mindustry.world;
+        TypeIO.game = mindustry;
     }
     // Custom
     static readInts(buf:DataStream){
@@ -96,7 +99,7 @@ export class TypeIO {
         if (id === -1){
             id = null;
         }
-        return Utils.getContentByID('block',id);
+        return this.game?.utils.getContentByID('block',id) ?? null;
     }
     static writeItem(buf:DataStream, item:short|string|null){
         if (typeof item === 'string'){
