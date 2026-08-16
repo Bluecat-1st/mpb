@@ -23,7 +23,7 @@ export const config = {
     /** None of the listeners work right now, so this can be left off. */
     setupPlayerListeners:false,
     /** Removes color formating tags and some gliphs */
-    escapeMessageFormating:true,
+    escapeMessageFormating:false,
     /** Some people for some reason send messages with gliphs at the end I can get rid of using normal JS methods, so this whitelist forces them out, however it is a a cost of not being able to use Mindustry's icons/emojis without having to manualy whitelist them.... */
     whitelistGliphFiltering:true,
     server:{
@@ -36,7 +36,11 @@ export const config = {
         */
         ip:"162.248.101.53",
         port:6567
-    }
+    },
+    name:"mpb (Bot)",
+    commandPrefix:"mpb",
+    uuid:"UUIDAAAAAAA=",
+    usid:"USIDAAAAAAA="
 } as const;
 
 say(`Config loaded:`);

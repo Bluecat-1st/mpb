@@ -16,7 +16,7 @@ client.netClient.on("connect", () => {
         throwError('client.netClient has gone missing!');
     }
     say('Joining...');
-    client.netClient.join("mpb (Bot)", "UUIDAAAAAAA=", "USIDAAAAAAA=");
+    client.netClient.join(config.name, config.uuid, config.usid);
 });
 client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.SendMessageCallPacket2>) => {
     if (client.netClient?.player?.admin){
@@ -51,7 +51,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
         if (!client.netClient) {
             throwError('client.netClient does not exist!');
         }
-        if(p.unformatted === 'mpb ping') {
+        if(p.unformatted === `${config.commandPrefix} ping`) {
             client.netClient.ping(true).then((ping) => {
                 if (!client.netClient) {
                     throwError('client.netClient does not exist!');
@@ -69,8 +69,8 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     warn(`Ping was requested but timed out!`);
                 }
             });
-        }else if (p.unformatted.trim().startsWith('mpb moveto ')) {
-            const args = p.unformatted!.slice('mpb moveto '.length).split(' ');
+        }else if (p.unformatted.trim().startsWith(`${config.commandPrefix} moveto `)) {
+            const args = p.unformatted!.slice(`${config.commandPrefix} moveto `.length).split(' ');
             if (args.length !== 2) {
                 //warn(`Warning: Command moveto needed two numbers afterwards as arguments.`);
                 client.call.sendChatMessage(`[yellow]Warning: Command moveto needed two numbers afterwards as arguments.`);
@@ -87,7 +87,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     client.netClient.player?.controller.moveTo(<float>x,<float>y,8,1);
                 }
             }
-        }else if (p.unformatted === 'mpb info') {
+        }else if (p.unformatted === `${config.commandPrefix} info`) {
             let info = `MPB's status:\n`;
             if (client.netClient.player) {
                 info += `Pos:[yellow](${client.netClient.player.unit.position?.x},${client.netClient.player.unit.position?.y})\n`;
@@ -97,22 +97,22 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             info += `\nloadWorldAttempted: ${client.netClient.loadWorldAttemped}\nloadWorldFinished: ${client.netClient.loadWorldFinished}`
             say(info);
             client.call.sendChatMessage(info.replaceAll('\n', ' '));
-        }else if (p.unformatted === 'mpb units') {
+        }else if (p.unformatted === `${config.commandPrefix} units`) {
             console.log(Object.keys(client.netClient.units as object).join(', '));
             client.call.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
-        }else if (p.unformatted === 'mpb disconnect') {
+        }else if (p.unformatted === `${config.commandPrefix} disconnect`) {
             client.call.sendChatMessage('Disconnecting...');
             say(`Disconnecting...`);
             client.netClient.reset();
-        }else if (p.unformatted.startsWith(`mpb say `)) {
-            const arg = p.unformatted!.slice('mpb say '.length).trim();
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} say `)) {
+            const arg = p.unformatted!.slice(`${config.commandPrefix} say `.length).trim();
             warn(arg);
             const text = `(By [blue]${p.playersender ?? 'unknown sender'}[white]) ${arg}`;
             client.call.sendChatMessage(text ?? `[red]Error`);
-        }else if (p.unformatted === 'mpb respawn'){
+        }else if (p.unformatted === `${config.commandPrefix} respawn`){
             client.netClient.player?.respawn();
-        }else if (p.unformatted.startsWith('mpb setPlayerVar ')){
-            const args = p.unformatted!.slice('mpb setPlayerVar '.length).split(' ') as [string, string];
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} setPlayerVar `)){
+            const args = p.unformatted!.slice(`${config.commandPrefix} setPlayerVar `.length).split(' ') as [string, string];
             if (args.length !== 2) {
                 const msg = `Warning: Command setPlayerVar needs two arguments.`
                 warn(msg);
@@ -179,16 +179,16 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     return;
                 }
             }
-        }else if (p.unformatted.startsWith('mpb assist ')){
-            const arg = p.unformatted!.slice('mpb assist '.length).trim();
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} assist `)){
+            const arg = p.unformatted!.slice(`${config.commandPrefix}`.length).trim();
             client.netClient.player?.controller.assist(arg);
-        }else if (p.unformatted === `mpb printUnitID`){
+        }else if (p.unformatted === `${config.commandPrefix} printUnitID`){
             if (client.netClient.player?.id){
                 client.call.sendChatMessage(`MPB's player ID is [acid]${client.netClient.player.id}`);
             }else{
                 client.call.sendChatMessage(`[#f00]ERROR: MPB does not have a player ID, check [gray]netClient.loadWorld()[]!`);
             }
-        }else if (p.unformatted.startsWith('mpb pingPos ')){
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} pingPos `)){
             const args = p.unformatted!.slice('mpb pingPos '.length).split(' ');
             if (args.length < 2){
                 client.call.sendChatMessage(`[yellow]Warning: Command pingPos needs a [acid]x[] and [acid]y[] position and optionally text to add to the ping!`);
@@ -207,7 +207,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 client.call.pingLocation(x,y);
             }
             client.call.sendChatMessage(`Pinged location.`);
-        }else if (p.unformatted === 'mpb rtv'){
+        }else if (p.unformatted === `${config.commandPrefix} rtv`){
             client.call.sendChatMessage(`/rtv`);
         }
     }, Math.floor(Math.random() * 1000));
