@@ -75,6 +75,7 @@ abstract class DataAsset{
     }
 }
 
+// mindustry.mod.data.PatchAsset.java
 class PatchAsset extends DataAsset{
     /** Raw string value, containing original formatting. */
     public patch = "";
@@ -101,6 +102,7 @@ class PatchAsset extends DataAsset{
     }
 }
 
+// mindustry.mod.data.ContentAsset.java
 class ContentAsset extends DataAsset{
     static loadableContent:string[] = [`item`,`block`,`liquid`,`status`,`unit`,`weather`];
     type?:string;
@@ -123,18 +125,43 @@ class ContentAsset extends DataAsset{
     }
 }
 
+// mindustry.mod.data.BundleAsset.java
+class BundleAsset extends DataAsset {
+    cachedBundle:Record<string,string>|null;
+    constructor(){
+        super();
+        this.cachedBundle = null;
+    }
+    public updateData(data: any): void {
+        super.updateData(data);
+        this.cachedBundle = null;
+    }
+}
+
+// mindustry.mod.data.ImageAsset.java
 class ImageAsset extends DataAsset {
     constructor();
-    constructor(path:string,hash:string);
-    constructor(path?:string,hash?:string){
+    constructor(path:string,hash:Buffer);
+    constructor(path?:string,hash?:Buffer){
         super();
         if (path){
             this.setPath(path);
-            this.setPath(hash!);
+            this.setHash(hash!);
         }
     }
 }
 
+// mindustry.mod.data.SoundAsset.java
+class SoundAsset extends DataAsset {
+
+}
+
+// mindustry.mod.data.MusicAsset.java
+class MusicAsset extends DataAsset {
+
+}
+
+// mindustry.mod.data.DataAssetType.java
 export class DataAssetType{
     static create(id:number){
         switch(id){
@@ -142,8 +169,14 @@ export class DataAssetType{
                 return new PatchAsset();
             case 1:
                 return new ContentAsset();
+            case 2:
+                return new BundleAsset();
             case 3:
                 return new ImageAsset();
+            case 4:
+                return new SoundAsset();
+            case 5:
+                return new MusicAsset();
             default:
                 throwError(`Unknown asset type: [acid]${id}[]`);
         }
