@@ -143,8 +143,8 @@ export class Controller{
 
 		this.calcStatus();
 		try{
-			if(!this.player.nc.config?.disablePhysic){
-				Phys.collide(this.player.unit, Object.values(this.player.nc.units!))
+			if(this.player.nc.units && !this.player.nc.config?.disablePhysic){
+				Phys.collide(this.player.unit, Object.values(this.player.nc.units))
 			}
 		} catch(e){
 			console.log(e);

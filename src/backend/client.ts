@@ -17,12 +17,13 @@ const contentTypes = contentTypesData.contentTypes;
 if (!contentTypes || !Array.isArray(contentTypes)) {
     throw new Error('json/ContentTypes.json.contentTypes must be an array of strings.');
 }
-import { Call, Send } from "./Call.js";
+import { Call } from "./Call.js";
 import { World } from "./World.js";
 import { Utils } from "./Utills.js";
 import { formatText, say, throwError, warn } from './textFormater.js';
 import { byte, type nullableString, type float, type int, type long, type short } from "./primitives.js";
 import { Logger } from "./logger.js";
+import { DataAssetCache } from "./DataAssetType.js";
 
 export interface Unit {
     position?:{
@@ -245,7 +246,7 @@ export class NetClient extends EventEmitter {
         this.config = config;
     }
     /** Send data to a server */
-    send(packet:Parameters<Client['sendTCP']>[0], reliabale:boolean|Send.reliabale|Send.unreliabale) {
+    send(packet:Parameters<Client['sendTCP']>[0], reliabale:boolean) {
         if (reliabale) {
             this.#client.sendTCP(packet);
         } else {
@@ -324,9 +325,9 @@ export class NetClient extends EventEmitter {
                     builder.add(Buffer.from(buf));
                     //console.log(builder.length + "/" + builder.total + " " + Math.floor(builder.length / builder.total * 100) + "%");
                     if (builder.isDone()) {
-                        say(`Received world data: [acid]${builder.total}[reset] bytes.`);
+                        say(`[NetClient.handleClientReceived] Received data for [acid]${namePacket(builder.type)}[]: [acid]${builder.total}[] bytes.`);
                         this.streams.delete(builder.id);
-                        this.handleClientReceived(builder.build())
+                        this.handleClientReceived(builder.build());
                     }
                 } else {
                     console.error("Received stream chunk without a StreamBegin beforehand!");
@@ -350,7 +351,7 @@ export class NetClient extends EventEmitter {
         this.loadWorldAttemped = true;
         say(`-`.repeat(10));
         say(`Loading World...`);
-        let buf = DataStream.from(Buffer.from(inflate(packet._stream!)));
+        const buf = DataStream.from(Buffer.from(inflate(packet._stream!)));
         buf.printStatus(`Initial creation`);
         SaveIO.readDataPatches(buf);
         buf.printStatus(`Read patches`);
@@ -426,6 +427,27 @@ export class NetClient extends EventEmitter {
         say(`-`.repeat(10));
         this.loadWorldFinished = true;
     }
+    loadRequiredAssets(packet:InstanceType<typeof Packets.AssetRequirementStream>){
+        const buf = DataStream.from(Buffer.from(inflate(packet._stream!)));
+
+        // mindustry.net.NetworkIO.readRequiredAssets(InputStream)
+        const amount = buf.getInt();
+        //say(`[readRequiredAssets] [acid]${amount}[] assets.`);
+        //console.log(buf._getBuffer());
+        const result:string[] = [];
+        for (let i=0;i<amount;i++){
+            result.push(DataAssetCache.encodeHash(buf.get(32)));
+        }
+        // --
+        // Because I don't feel like implimenting the cache system, mpb will need to reqest the assets each map.
+        const missing:short[] = [];
+        for (let i=0;i<result.length;i++){
+            missing.push(<short>i); // I'm keep this here in case I ever do want to add the cache system...
+        }
+        console.log(missing);
+        say(`[NetClient.loadRequiredAssets] Requesting [acid]${missing.length}[] asset(s) from the server.`);
+        this.game.call.requestAssets(missing);
+    }
     updateUnitList(data:Record<number,Unit>){
         for (let key in data) {
             this.units![key] = data[key]!;
@@ -452,6 +474,7 @@ export class NetClient extends EventEmitter {
     entitySnapshot(amount:short, rawBuf:Buffer){
         let buf = DataStream.from(rawBuf);
         let ulist:Record<number,Unit> = {};
+        return;
         try{
             for(let i = 0; i < amount; i++){
                 let id = buf.getInt();

@@ -9,7 +9,7 @@ export const config = {
     dontCompress:false,
     showAllPackets:false,
     hidePacketSends:false,
-    hidePacketReseives:true,
+    hidePacketReseives:false,
     /** Some packets groups to hide */
     hideGroup:{
         /** Unit related stuff */

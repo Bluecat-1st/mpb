@@ -17,8 +17,6 @@ client.netClient.on("connect", () => {
     }
     say('Joining...');
     client.netClient.join("mpb (Bot)", "UUIDAAAAAAA=", "USIDAAAAAAA=");
-    say('Confirming connection...');
-    client.netClient.connectConfirm();
 });
 client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.SendMessageCallPacket2>) => {
     if (client.netClient?.player?.admin){

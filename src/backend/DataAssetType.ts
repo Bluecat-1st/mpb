@@ -1,8 +1,9 @@
 import type { DataStream } from "./DataStream.js";
+import { say, throwError } from "./textFormater.js";
 
 const Vars:any = {};
 
-class DataAssetCache{
+export class DataAssetCache{
     private static base32Alphabet:string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".split('');
     public static encodeHash(data:any):string{
         if(data.length != 32) throw new Error("Data must be exactly 32 bytes (length: " + data.length + ")");
@@ -94,7 +95,43 @@ class PatchAsset extends DataAsset{
         }
     }
     public read(stream: DataStream): void {
-        this.patch = stream.readString();
+        //this.patch = stream.readString();
+        this.patch = stream.get(stream.getInt()).toString('utf-8');
+        say(`[PatchAsset.read] Patch: [white]${this.patch}`);
+    }
+}
+
+class ContentAsset extends DataAsset{
+    static loadableContent:string[] = [`item`,`block`,`liquid`,`status`,`unit`,`weather`];
+    type?:string;
+    data?:string;
+    constructor();
+    constructor(path:string, type:string, data:string);
+    constructor(path?:string, type?:string, data?:string){
+        super();
+        if (path){
+            this.setPath(path);
+            this.type = type!;
+            this.data = data!;
+        }
+    }
+    read(stream:DataStream){
+        const typeID = stream.getShort();
+        const type = ContentAsset.loadableContent[typeID];
+        if (!type) throwError(`Unknown content type [acid]${typeID}[]!`);
+        this.data = stream.get(stream.getInt()).toString('utf-8');
+    }
+}
+
+class ImageAsset extends DataAsset {
+    constructor();
+    constructor(path:string,hash:string);
+    constructor(path?:string,hash?:string){
+        super();
+        if (path){
+            this.setPath(path);
+            this.setPath(hash!);
+        }
     }
 }
 
@@ -103,10 +140,12 @@ export class DataAssetType{
         switch(id){
             case 0:
                 return new PatchAsset();
-            
-            default:{
-                throw new Error(`Unknown asset type: ${id}`);
-            }
+            case 1:
+                return new ContentAsset();
+            case 3:
+                return new ImageAsset();
+            default:
+                throwError(`Unknown asset type: [acid]${id}[]`);
         }
     }
 

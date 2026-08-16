@@ -207,6 +207,20 @@ export class TypeIO {
 
         // ?
     }
+    static writeShorts(buf:DataStream, shorts:short[]){
+        buf.putShort(<short>shorts.length);
+        for (let short of shorts){
+            buf.putShort(short);
+        }
+    }
+    static readShorts(buf:DataStream){
+        const len = buf.getShort();
+        const out = new Array<short>(len);
+        for (let i=0;i<len;i++){
+            out[i] = buf.getShort();
+        }
+        return out;
+    }
     // Ported
     static writeString(buf:DataStream, string:nullableString) {
         if (string) {

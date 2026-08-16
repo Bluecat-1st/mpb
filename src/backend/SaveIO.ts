@@ -185,10 +185,13 @@ export class SaveIO {
         const assets = [];
         for (let i=0;i<total;i++){
             const typeID = buf.get();
+            //say(`[readDataPatches] Patch type: [acid]${typeID}`);
             const path = buf.readString();
+            //say(`[readDataPatches] Path: [yellow]${path}`);
             const embeded = buf.getBoolean();
+            //say(`[readDataPatches] Embeded: ${formatValue(embeded)}`);
 
-            say(`[readDataPatches] Patch type: ${typeID} | Path: ${path} | Embeded: ${formatValue(embeded)}`);
+            say(`[readDataPatches] Patch type: [acid]${typeID}[] | Path: [yellow]${path}[] | Embeded: ${formatValue(embeded)}`);
 
             const asset = DataAssetType.create(typeID);
             asset.setPath(path);

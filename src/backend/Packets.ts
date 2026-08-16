@@ -54,7 +54,7 @@ export class StreamBuilder {
     build() {
         const p = Packets.get(this.type);
         if (!p){
-            throwError(`Failed to build packet [acid]${this.type}[]!`);
+            throwError(`[StreamBuilder.build] Failed to packet [acid]${this.type}[] does not exist!`);
         }
         let s = new p();
         s._stream = this.stream = Buffer.concat(this.#buf);
@@ -174,11 +174,10 @@ registerPacket(StreamChunk);
 class WorldStream extends Packet {
     _id = 2;
     _lastUpdatedFor = 159;
-    read(_:DataStream){}
+    read(){}
     handleClient(nc:NetClient){
-        if(nc.game) {
-            nc.loadWorld(this);
-        }
+        nc.connectConfirm();
+        nc.loadWorld(this);
     }
 }
 registerPacket(WorldStream);
@@ -277,6 +276,26 @@ class ConnectPacket extends Packet {
     }
 }
 registerPacket(ConnectPacket);
+
+class AssetRequirementStream extends Packet {
+    _id = 4;
+    _lastUpdatedFor = 159;
+    read(){}
+    handleClient(nc: NetClient): void {
+        nc.loadRequiredAssets(this);
+    }
+}
+registerPacket(AssetRequirementStream);
+
+class AssetStream extends Packet {
+    _id = 5;
+    _lastUpdatedFor = 159;
+    read(){};
+    handleClient(nc: NetClient): void {
+        nc.game.call.requestWorld();
+    }
+}
+registerPacket(AssetStream);
 
 class AdminRequestCallPacket extends Packet {
     _id = 6;
@@ -1529,7 +1548,7 @@ class PlayerSpawnCallPacket extends Packet {
         this.player = TypeIO.readEntity(buf);
     }
     handleClient(nc:NetClient) {
-        say(`Player with the ID [acid]${this.player}[reset] spawned at [yellow](${this.tile!.x},${this.tile!.y})`);
+        say(`[PlayerSpawnCallPacket] Player with the ID [acid]${this.player}[reset] spawned at [yellow](${this.tile!.x},${this.tile!.y})`);
         nc.units![this.player!] = {
             id:this.player,
             position:{
@@ -1543,6 +1562,19 @@ class PlayerSpawnCallPacket extends Packet {
     }
 }
 registerPacket(PlayerSpawnCallPacket);
+
+class RequestAssetsCallPacket extends Packet {
+    _id = 86;
+    _lastUpdatedFor = 159;
+    ids?:short[];
+    write(buf: DataStream): void {
+        TypeIO.writeShorts(buf,this.ids!);
+    }
+    read(buf: DataStream): void {
+        this.ids = TypeIO.readShorts(buf);
+    }
+}
+registerPacket(RequestAssetsCallPacket);
 
 class RequestBuildPayloadCallPacket extends Packet {
     _id = 88;
@@ -1631,6 +1663,13 @@ class RequestUnitPayloadCallPacket extends Packet {
     }
 }
 registerPacket(RequestUnitPayloadCallPacket);
+
+class RequestWorldCallPacket extends Packet {
+    _id = 93;
+    _lastUpdatedFor = 159;
+    read(){};
+}
+registerPacket(RequestWorldCallPacket);
 
 class RotateBlockCallPacket extends Packet {
     _id = 95;
@@ -2336,8 +2375,8 @@ export const packets = {
     StreamChunk,                            // ID 1  <| these should                         |
     WorldStream,                            // ID 2  <| be constant                          |
     ConnectPacket,                          // ID 3  <| ------------------------------------ |
-    // AssetRequirementStream               // ID 4  <| New Packet: 159.2                    |
-    // AssetStream                          // ID 5  <| New Packet: 159.2                    |
+    AssetRequirementStream,                 // ID 4  <| New Packet: 159.2                    |
+    AssetStream,                            // ID 5  <| New Packet: 159.2                    |
     AdminRequestCallPacket,                 // ID 6   | Pending        |                     |
     AnnounceCallPacket,                     // ID 7   | Pending        |                     |
     AssemblerDroneSpawnedCallPacket,        // ID 8   | Pending        |                     |
@@ -2408,11 +2447,14 @@ export const packets = {
     PlayerDisconnectCallPacket,             // ID 80  | Confirmed      |                     |
     PlayerSpawnCallPacket,                  // ID 81  | Mostly         | Updated for 159.2   |
 
+    RequestAssetsCallPacket,                // ID 86  | Pending        |                     |
+
     RequestBuildPayloadCallPacket,          // ID 88  | Pending        |                     |
 
     RequestDropPayloadCallPacket,           // ID 90  | Pending        |                     |
     RequestItemCallPacket,                  // ID 91  | Pending        |                     |
     RequestUnitPayloadCallPacket,           // ID 92  | Pending        |                     |
+    RequestWorldCallPacket,                 // ID 93  | Pending        |                     |
 
     RotateBlockCallPacket,                  // ID 95  | Confirmed      | Work on handler     |
     SectorCaptureCallPacket,                // ID 96  | Blank Packet   |                     |
