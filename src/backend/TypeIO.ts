@@ -48,7 +48,7 @@ export enum MObject {
 }
 
 export interface Plan {
-    type: boolean,
+    breakPlan: boolean,
     position: Point2,
     block?: string,
     rotation?: byte,
@@ -206,9 +206,11 @@ export class TypeIO {
         return buf.getShort();
     }
     static readUnitContainer(buf:DataStream){
+        if (!this.game?.netClient?.units) return;
         const unit = this.readUnit(buf);
 
-        // ?
+        const entity = UnitIO.read(buf,unit[0]);
+        this.game.netClient.units[unit[1]] = entity;
     }
     static writeShorts(buf:DataStream, shorts:short[]){
         buf.putShort(<short>shorts.length);
@@ -267,7 +269,7 @@ export class TypeIO {
 
         if(type){
             return {
-                type,
+                breakPlan: type,
                 position
             } as Plan;
         } else {
@@ -276,7 +278,7 @@ export class TypeIO {
             let hasConfig = buf.getBoolean();
             let config = this.readObject(buf);
             return {
-                type,
+                breakPlan: type,
                 position,
                 block,
                 rotation,
@@ -425,9 +427,9 @@ export class TypeIO {
         }
     }
     static writePlan(buf:DataStream, plan:Plan){
-        buf.putBoolean(plan.type);
+        buf.putBoolean(plan.breakPlan);
         buf.putInt(Point2.pack(plan.position.x,plan.position.y))
-        if(!plan.type){
+        if(!plan.breakPlan){
             //buf.putShort(plan.block!);
             this.writeBlock(buf, plan.block!);
             buf.put(plan.rotation!);
