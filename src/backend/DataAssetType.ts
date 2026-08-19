@@ -1,22 +1,22 @@
 import type { DataStream } from "./DataStream.js";
 import { say, throwError } from "./textFormater.js";
-
-const Vars:any = {};
+import jsCrc from 'js-crc';
+const { crc32 } = jsCrc;
 
 export class DataAssetCache{
     private static base32Alphabet:string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".split('');
-    public static encodeHash(data:any):string{
+    public static encodeHash(data:Buffer):string{
         if(data.length != 32) throw new Error("Data must be exactly 32 bytes (length: " + data.length + ")");
         const out:string[] = [];
         let di = 0, oi = 0;
 
         for(let i=0;i<6;i++){
             const bits =
-                ((data[di++] & 0xFF) << 32) |
-                ((data[di++] & 0xFF) << 24) |
-                ((data[di++] & 0xFF) << 16) |
-                ((data[di++] & 0xFF) << 8)  |
-                ((data[di++] & 0xFF));
+                ((data[di++]! & 0xFF) << 32) |
+                ((data[di++]! & 0xFF) << 24) |
+                ((data[di++]! & 0xFF) << 16) |
+                ((data[di++]! & 0xFF) << 8)  |
+                ((data[di++]! & 0xFF));
 
             out[oi++] = this.base32Alphabet[(bits >>> 35) & 0x1F]!;
             out[oi++] = this.base32Alphabet[(bits >>> 30) & 0x1F]!;
@@ -28,8 +28,8 @@ export class DataAssetCache{
             out[oi++] = this.base32Alphabet[bits & 0x1F]!;
         }
 
-        const b0 = data[di++] & 0xFF;
-        const b1 = data[di]   & 0xFF;
+        const b0 = data[di++]! & 0xFF;
+        const b1 = data[di]!   & 0xFF;
 
         out[oi++] = this.base32Alphabet[(b0 >>> 3) & 0x1F]!;
         out[oi++] = this.base32Alphabet[((b0 << 2) & 0x1C) | ((b1 >>> 6) & 0x03)]!;
@@ -37,6 +37,24 @@ export class DataAssetCache{
         out[oi++] = this.base32Alphabet[(b1 << 4) & 0x1F]!;
 
         return out.join();
+    }
+    /** 
+     * @deprecated This code is a halfway port from Java to TS.
+     * @return the hash
+     */
+    public static add(bytes:Buffer):string{
+        /*
+        const hash = Streams.sha256(bytes);
+        const name = this.encodeHash(hash);
+        const file = Vars.assetCacheDirectory.child(name);
+        //avoid unnecessary disk writes when adding an asset that already exists. TODO: it's possible the file may be corrupted even if length matches?
+        if(file.length() != bytes.length){
+            file.writeBytes(bytes);
+        }
+        hashToFile.put(name, file);
+        return hash;
+        */
+        return crc32(bytes);
     }
 }
 
@@ -52,7 +70,7 @@ abstract class DataAsset{
     public byteHash: Buffer|null = null;
     public stringHash: string|null = null;
     public updateData(data:any):void {
-        this.setHash(Vars.assetCache.add(data));
+        //this.setHash(DataAssetCache.add(data));
     }
     public setHash(value:Buffer):void{
         if(value.length != 32) throw new Error("hash must be 32 bytes long: " + value.length);
@@ -98,7 +116,7 @@ class PatchAsset extends DataAsset{
     public read(stream: DataStream): void {
         //this.patch = stream.readString();
         this.patch = stream.get(stream.getInt()).toString('utf-8');
-        say(`[PatchAsset.read] Patch: [white]${this.patch}`);
+        say(`[PatchAsset.read] Patch:\n[white]${this.patch}\n----------`);
     }
 }
 
@@ -122,6 +140,7 @@ class ContentAsset extends DataAsset{
         const type = ContentAsset.loadableContent[typeID];
         if (!type) throwError(`Unknown content type [acid]${typeID}[]!`);
         this.data = stream.get(stream.getInt()).toString('utf-8');
+        say(`[ContentAsset.read] Content:\n[white]${this.data}\n----------`);
     }
 }
 

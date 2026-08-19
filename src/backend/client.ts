@@ -167,8 +167,8 @@ export class NetClient extends EventEmitter {
     #client;
     streams;
     game;
-    units:Record<number,Unit>|undefined;
-    player:Player|undefined;
+    units?:Record<number,Unit>;
+    player?:Player;
     state:{
         waveTime:float,
         wave:int,
@@ -182,31 +182,39 @@ export class NetClient extends EventEmitter {
         teams:Record<number,Record<number, number>>
         coreData:Buffer
     };
-    config:{
+    /**
+     * @deprecated This config will be moved to a diffent {@link config}.
+     */
+    config?:{
         autoReconnect?:boolean;
         lang?:string;
         client?:string;
-        mods?:any[];
+        mods?:string[];
         /** The time between client snapshots */
         csTime?:number;
         disablePhysic?:boolean;
-    }|undefined;
-    port:number|undefined;
-    ip:string|undefined;
+    };
+    port?:number;
+    ip?:string;
     loadWorldAttemped = false;
     loadWorldFinished = false;
+    attempedReconnect = false;
     constructor(game: Mindustry) {
         super();
         this.#client = new Client(8192, new PacketSerializer(this), p => this.handleClientReceived(p));
         this.#client.on("timeout", () => {
             console.log("timeout!");
             this.reset();
-            this.emit("timeout")
+            if (this.attempedReconnect){
+                this.connect(this.port!,this.ip!);
+                this.attempedReconnect = true;
+            }
+            this.emit("timeout");
         });
         this.#client.on("error", e => {
             this.reset();
             if ('code' in e && e.code === 'EPIPE'){
-                e = new Error(formatText('[red][bold]This bot [yellow]may[red] have been dos-banned.'));
+                e = new Error(formatText('[red][bold]This bot [yellow]may[] have been dos-banned.'));
             }
             console.error(e.stack);
             this.emit("error", e);
@@ -319,15 +327,16 @@ export class NetClient extends EventEmitter {
             packet.handled(this);
             if (packet instanceof Packets.StreamBegin) {
                 this.streams.set(packet.id, new StreamBuilder(packet));
+                say(`[NetClient.handleClientReceived] [acid]${this.streams.size}[] steams active.`);
             } else if (packet instanceof Packets.StreamChunk) {
                 let builder = this.streams.get(packet.id!);
                 if (builder) {
                     let buf = packet.data!;
                     builder.add(Buffer.from(buf));
-                    //console.log(builder.length + "/" + builder.total + " " + Math.floor(builder.length / builder.total * 100) + "%");
+                    //say(`[NetClient.handleClientReceived] [acid]${builder.length}[]bytes/[acid]${builder.total}[]bytes | ${Math.floor(builder.length / builder.total * 100)}%`);
                     if (builder.isDone()) {
-                        say(`[NetClient.handleClientReceived] Received data for [acid]${namePacket(builder.type)}[]: [acid]${builder.total}[] bytes.`);
                         this.streams.delete(builder.id);
+                        say(`[NetClient.handleClientReceived] Received data for [acid]${namePacket(builder.type)}[]: [acid]${builder.total}[] bytes. [acid]${this.streams.size}[] streams active.`);
                         this.handleClientReceived(builder.build());
                     }
                 } else {
@@ -349,6 +358,7 @@ export class NetClient extends EventEmitter {
         }
     }
     loadWorld(packet:InstanceType<typeof Packets.WorldStream>) {
+        this.attempedReconnect = false;
         this.loadWorldAttemped = true;
         say(`-`.repeat(10));
         say(`Loading World...`);

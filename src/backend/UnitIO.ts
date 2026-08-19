@@ -142,7 +142,7 @@ export class UnitIO {
 			say(`Admin: ${formatValue(admin)}`);
 		    let boost = buf.getBoolean();
 		    let color = buf.getInt();
-			TypeIO.readCommand(buf);
+			//TypeIO.readCommand(buf);
 		    let mouseX = buf.getFloat();
 		    let mouseY = buf.getFloat();
 			say(`Mouse pos: [yellow](${mouseX},${mouseY})[reset]`);
@@ -151,7 +151,7 @@ export class UnitIO {
 			buf.getShort(); // Selected block
 			buf.getInt(); // Selected rotation
 		    let shoot = buf.getBoolean();
-		    let team = buf.get();
+		    let team = TypeIO.readTeam(buf);
 		    let typing = buf.getBoolean();
 		    let unit = TypeIO.readUnit(buf);
 		    let x = buf.getFloat();

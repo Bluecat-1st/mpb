@@ -49,4 +49,10 @@ export class Call {
         packet.message = message;
         this.send(packet, true);
     }
+
+    // ID 149
+    unitClear(){
+        const packet = new Packets.UnitClearCallPacket();
+        this.send(packet, true);
+    }
 }

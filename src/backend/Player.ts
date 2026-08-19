@@ -3,6 +3,7 @@ import type { NetClient, Unit } from "./client.js";
 import type { DataStream } from "./DataStream.js";
 import type { Plan } from "./TypeIO.js";
 import type { Tile } from "./Tiles.js";
+import type { Call } from "./Call.js";
 import { say, throwError, warn } from './textFormater.js';
 import { packets as Packets } from "./Packets.js";
 import { Controller } from "./Controller.js";
@@ -14,11 +15,13 @@ import { Utils } from "./Utills.js";
 export class Player {
 	name?:string
 	tickTime = 66 // 1/15(66.6)
-    nc;
+    nc:NetClient;
+	/** Shorthand to {@link Call} */
+	call:Call;
 	/** The player's ID */
-    id;
+    id:number;
     unit:Unit;
-    controller;
+    controller:Controller;
 	/** The current snapshot ID */
     snapid;
     interval:NodeJS.Timeout|undefined;
@@ -26,6 +29,7 @@ export class Player {
 	constructor(nc:NetClient, id:number){
 		say(`MPB's player ID is [acid]${id}`);
 		this.nc = nc;
+		this.call = nc.game.call;
 		this.id = id;
 
 		// If the PlayerSpawnCallPacket gets called before NetClient.loadWorld().
@@ -234,7 +238,7 @@ export class Player {
 		p.viewHeight = this.unit.viewHeight!;
 		this.nc.send(p, false);
 	}
-	build(x:int, y:int, block:string, config:any, ignore:any){
+	build(x:int, y:int, block:string, config:{rotation:byte,object:ReturnType<typeof TypeIO.readObject>}, ignore:any){
 		/*
 		let blockID = typeof block == "string" ? Utils.getBlockByName(block) : block
 
@@ -253,11 +257,11 @@ export class Player {
 			}
 		}
 
-		let rotation = config?.rotation || 0
-		let object = config?.object || [0]
+		let rotation = config?.rotation || <byte>0
+		let object = config?.object || <ReturnType<typeof TypeIO.readObject>>[0,null];
 		let pos = {x, y}
 		let plan:Plan = {
-			type: false,
+			breakPlan: false,
 			position: pos,
 			//block: blockID,
 			block,
@@ -267,14 +271,14 @@ export class Player {
 		}
 		this.controller.plans.push(plan);
 	}
-	buildScheme(base64schm:string, x:number, y:number){
+	buildBase64Scheme(base64schm:string, x:number, y:number){
 		let sch = SchemeIO.readBase64(base64schm);
 		let plans = SchemeIO.toBuildPlans(sch.res, x, y);
 
 		this.controller.plans = this.controller.plans.concat(plans);
 	}
 	break(x:int, y:int){
-		if(!this.nc.game.world.tiles.array[y * this.nc.game.world.tiles.width + x]!.block){
+		if(!this.nc.game.world.tiles.get(x,y)?.block){
 			return
 		}
 
@@ -289,7 +293,7 @@ export class Player {
 		let pos = {x, y};
 
 		let plan:Plan = {
-			type: true,
+			breakPlan: true,
 			position: pos
 		}
 		this.controller.plans.push(plan);
@@ -324,16 +328,16 @@ export class Player {
 
 		this.nc.send(p, true);
 	}
-	takeItems(x:short, y:short, item:number|string, amount = 1 as int){
-		let pos = {x, y};
-		let it = typeof item == "number" ? <short>item : Utils.getItemByName(item);
+	takeItems(x:short, y:short, item:short|string, amount = <int>1){
+		const pos = {x, y};
+		const it = typeof item == "number" ? this.nc.game.utils.getContentByID('item',item) : item;
 		if (!it){
 			warn(`Did not find item ID for [purple]${item}`);
 			return;
 		}
-		let unit = this.unit.unit
+		const unit = this.unit.unit
 
-		let p = new Packets.RequestItemCallPacket();
+		const p = new Packets.RequestItemCallPacket();
 
 		p.player = unit!;
 		p.build = pos;
@@ -379,7 +383,7 @@ export class Player {
 		this.nc.send(p, true);
 	}
 	pickupUnit(unit?:int){
-		let un = !unit ? [0, 0] as [byte, int] : [2, unit] as [byte, int];
+		let un = (!unit ? [0, 0] : [2, unit]) as [byte, int];
 
 		let p = new Packets.RequestUnitPayloadCallPacket();
 
@@ -405,9 +409,7 @@ export class Player {
 		this.nc.send(p, true);
 	}
 	respawn(){
-		let p = new Packets.UnitClearCallPacket();
-
-		this.nc.send(p, true);
+		this.call.unitClear();
 	}
 	stop(){
 		clearInterval(this.interval);

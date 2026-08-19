@@ -38,6 +38,8 @@ export const ANSI_CODES: Record<string, string> = {
     'magenta': '\x1b[38;2;232;86;210m',
     'crimson': '\x1b[38;2;189;43;58m',
     'gold': '\x1b[38;2;243;211;86m',
+    'sky': '\x1b[38;2;132;162;239m',
+    'pink': '\x1b[38;2;226;125;170m',
 
     // Mindustry UI Palette Colors
     'accent': '\x1b[38;2;255;211;127m', // Standard Mindustry gold/orange accent

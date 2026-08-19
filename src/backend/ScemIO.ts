@@ -92,7 +92,7 @@ export class SchemeIO{
 	            y: <int>Math.round(y + rotatedY)
 	        };
 	        
-	        plan.type = false;
+	        plan.breakPlan = false;
 	        plan.block = blk.block;
 	        
 	        plan.rotation = ((blk.rotation + rotation) % 4) as byte;

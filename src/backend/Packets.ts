@@ -2,12 +2,12 @@ import type { NetClient } from "./client.js";
 import { DataStream } from "./DataStream.js";
 import type { Point2 } from "./Math.js";
 import { TypeIO, type Plan } from "./TypeIO.js";
-import jsCrc from 'js-crc';
-import { say, warn, throwError } from './textFormater.js';
+import { say, warn, throwError, formatText } from './textFormater.js';
 import type { Tile } from "./Tiles.js";
 import { byte, float, int, short, type long, type ushort, type nullableShort, type nullableInt, type nullableString } from "./primitives.js";
 import { config } from "./botConfig.js";
 import { formatValue } from "./Utills.js";
+import jsCrc from 'js-crc';
 const { crc32 } = jsCrc;
 import type { PacketSerializer } from "./PacketSerializer.js"
 
@@ -44,7 +44,7 @@ export class StreamBuilder {
         this.#buf = [];
     }
     add(data:Buffer) {
-        if (!(data instanceof Buffer)) throw new TypeError("data must be a buffer.")
+        if (!(data instanceof Buffer)) throw new TypeError(formatText(`[red][bold]Data must be a buffer!`));
         this.length += data.length;
         this.#buf.push(data);
     }
@@ -96,9 +96,9 @@ export class Packet {
 function registerPacket(packet:new (...args: any[]) => Packet){
     const id = (new packet())._id;
     if (id === (new Packet())._id){
-        throwError(`Packet [reset][acid][italic]${namePacket(packet)}[reset][red][bold] does not have it's ID defined!`)
+        throwError(`Packet [acid][italic]${namePacket(packet)}[][] does not have it's ID defined!`)
     }else if (Packets.get(id)){
-        throwError(`Can't register two packets of the same ID. (Old packet: [acid]${namePacket(id)}[red] New packet: [acid]${namePacket(packet)}[red])`);
+        throwError(`Can't register two packets of the same ID. (Old packet: [acid]${namePacket(id)}[] New packet: [acid]${namePacket(packet)}[])`);
     }
     Packets.set(id,packet);
 }
@@ -161,7 +161,7 @@ export class StreamChunk extends Packet {
     data?:Buffer;
     write(buf:DataStream) {
         buf.putInt(this.id!);
-        buf.putShort(this.data!.length as short);
+        buf.putShort(<short>this.data!.length);
         buf.put(this.data!);
     }
     read(buf:DataStream) {
@@ -1112,7 +1112,7 @@ class InfoMessageCallPacket extends Packet {
         this.message = TypeIO.readString(buf);
     }
     handleClient(): void {
-        say(`[InfoMessageCallPacket]: [white]${this.message}`);
+        say(`[InfoMessageCallPacket]:\n[white]${this.message}\n----------`);
     }
 }
 registerPacket(InfoMessageCallPacket);
@@ -1626,17 +1626,17 @@ class RequestItemCallPacket extends Packet {
     _lastUpdatedFor = 159;
     player?:int;
     build?:{x:short,y:short};
-    item?:nullableShort;
+    item?:nullableString;
     amount?:int;
     write(buf:DataStream) {
         TypeIO.writeBuilding(buf,this.build!);
-        TypeIO.writeItemRaw(buf,this.item!);
+        TypeIO.writeItem(buf,this.item!);
         buf.putInt(this.amount!);
     }
     read(buf:DataStream) {
         this.player = TypeIO.readEntity(buf);
         this.build = TypeIO.readBuilding(buf);
-        this.item = TypeIO.readItemRaw(buf);
+        this.item = TypeIO.readItem(buf);
         this.amount = buf.getInt();
     }
     handleServer(n:NetClient) {
@@ -2318,11 +2318,11 @@ registerPacket(UnitEnteredPayloadCallPacket);
 
 class UnitSpawnCallPacket extends Packet {
     _id = 157;
-    _hidden = config.hideGroup.units;
+    //_hidden = config.hideGroup.units;
     _lastUpdatedFor = 159;
-    //read(buf: DataStream): void {
-    //    TypeIO.readUnitContainer(buf);
-    //}
+    read(buf: DataStream): void {
+        TypeIO.readUnitContainer(buf);
+    }
 }
 registerPacket(UnitSpawnCallPacket);
 
