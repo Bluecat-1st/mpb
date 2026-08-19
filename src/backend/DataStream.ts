@@ -220,12 +220,12 @@ export class DataStream {
         }else if (b === 0){
             return false;
         }else{
-            throwError(`[reset][acid]${b}[reset][red][bold] is not a boolean!`);
+            throwError(`[clear][acid]${b}[][] is not a boolean!`);
         }
     }
     // Debug
     printStatus(info:string|null = null){
         if (!config.dataStreamStatusPrint) return;
-        say(`DataStream:[acid][bold]${this.#pos}[reset]/[red][bold]${this.#lim}[reset]|${this.#buf.length}${info?` | ${info}`:''}`);
+        say(`DataStream:[acid][bold]${this.#pos}[][]/[red][bold]${this.#lim}[][]|${this.#buf.length}${info?` | ${info}`:''}`);
     }
 }

@@ -54,7 +54,7 @@ export class StreamBuilder {
     build() {
         const p = Packets.get(this.type);
         if (!p){
-            throwError(`[StreamBuilder.build] Failed to packet [acid]${this.type}[] does not exist!`);
+            throwError(`[StreamBuilder.build] Packet [acid]${this.type}[] does not exist!`);
         }
         let s = new p();
         s._stream = this.stream = Buffer.concat(this.#buf);
@@ -62,7 +62,7 @@ export class StreamBuilder {
     }
 }
 
-const Packets = new Map<number, new (...args: any[]) => Packet>();
+const Packets = new Map<number, new () => Packet>();
 /** Template base for packets */
 export class Packet {
     /** The ID the packet maps to. */
@@ -687,7 +687,7 @@ class ClientSnapshotCallPacket extends Packet {
         this.dead = buf.getBoolean();
         this.x = buf.getFloat();
         this.y = buf.getFloat();
-        say(`[ClientSnapshotCallPacket] Resieved pos [yellow](${this.x},${this.y})[reset] for ${formatValue(this.unitID)}.`);
+        say(`[ClientSnapshotCallPacket] Resieved pos [yellow](${this.x},${this.y})[] for ${formatValue(this.unitID)}.`);
         this.pointerX = buf.getFloat();
         this.pointerY = buf.getFloat();
         this.rotation = buf.getFloat();
@@ -913,7 +913,7 @@ class CreateWeatherCallPacket extends Packet {
         this.windY = buf.getFloat();
     }
     handleClient(nc: NetClient): void {
-        say(`Weather event [acid][bold]${this.weather}[reset] started.`);
+        say(`Weather event [acid][bold]${this.weather}[] started.`);
     }
 }
 registerPacket(CreateWeatherCallPacket);
@@ -1088,7 +1088,7 @@ class GameOverCallPacket extends Packet {
         this.winner = TypeIO.readTeam(buf);
     }
     handleClient(nc: NetClient): void {
-        say(`Game over: The winner is team [acid][bold]${this.winner}[reset].`);
+        say(`Game over: The winner is team [acid][bold]${this.winner}[][].`);
     }
 }
 registerPacket(GameOverCallPacket);
@@ -1183,7 +1183,7 @@ class InfoPopupCallPacket2 extends Packet {
         this.right = buf.getInt();
     }
     handleClient(nc: NetClient): void {
-        say(`[InfoPopupCallPacket2]: (ID:[yellow]${this.id}[reset]) [white]${this.message}`);
+        say(`[InfoPopupCallPacket2]: (ID:[yellow]${this.id}[]) [white]${this.message}`);
     }
 }
 registerPacket(InfoPopupCallPacket2);
@@ -1254,7 +1254,7 @@ class InfoPopupReliableCallPacket2 extends Packet {
         this.right = buf.getInt();
     }
     handleClient(nc: NetClient): void {
-        say(`[InfoPopupReliableCallPacket2]: (ID:[yellow]${this.id}[reset]) [white]${this.message}`);
+        say(`[InfoPopupReliableCallPacket2]: (ID:[yellow]${this.id}[]) [white]${this.message}`);
     }
 }
 registerPacket(InfoPopupReliableCallPacket2);
@@ -1302,7 +1302,7 @@ class KickCallPacket2 extends Packet {
         const i = buf.get();
         const r = KickReason[i];
         if (!r){
-            throwError(`Unknown kick reason: [acid][italic]${i}[reset].`);
+            throwError(`Unknown kick reason: [acid][italic]${i}[][].`);
         }
         this.reason = i;
     }
@@ -1310,7 +1310,7 @@ class KickCallPacket2 extends Packet {
         buf.put(this.reason! as byte);
     }
     handleClient(_: NetClient): void {
-        say(`Kicked because [acid][italic]${KickReason[this.reason!]}[reset].`);
+        say(`Kicked because [acid][italic]${KickReason[this.reason!]}[][].`);
     }
 }
 registerPacket(KickCallPacket2);
@@ -1377,7 +1377,7 @@ class OpenURICallPacket extends Packet {
         this.uri = TypeIO.readString(buf);
     }
     handleClient(): void {
-        say(`[OpenURICallPacket]: [underline]${this.uri}[reset]`);
+        say(`[OpenURICallPacket]: [underline]${this.uri}[]`);
     }
 }
 registerPacket(OpenURICallPacket);
@@ -1474,7 +1474,7 @@ class PingLocationCallPacket extends Packet {
         this.text = TypeIO.readString(buf);
     }
     handleClient(nc: NetClient): void {
-        say(`Ping at [yellow]${nc.game.utils.toTilePos(this.x!,this.y!,1)}[reset]${this.text?` [white]${this.text}[reset]`:''}.`)
+        say(`Ping at [yellow]${nc.game.utils.toTilePos(this.x!,this.y!,1)}[]${this.text?` [white]${this.text}[]`:''}.`)
     }
 }
 registerPacket(PingLocationCallPacket);
@@ -1510,7 +1510,7 @@ class PlayMusicCallPacket extends Packet {
         this.interrupt = buf.getBoolean();
     }
     handleClient(): void {
-        say(`[PlayMusicCallPacket] Song: [white]${this.musicName}[reset]. Interrupt: ${formatValue(this.interrupt)}`);
+        say(`[PlayMusicCallPacket] Song: [white]${this.musicName}[]. Interrupt: ${formatValue(this.interrupt)}`);
     }
 }
 registerPacket(PlayMusicCallPacket);
@@ -1527,7 +1527,7 @@ class PlayerDisconnectCallPacket extends Packet {
         this.playerid = buf.getInt();
     }
     handleClient(nc:NetClient): void {
-        say(`Player [blue]${this.playerid}[reset] disconnected.`);
+        say(`Player [blue]${this.playerid}[] disconnected.`);
     }
 }
 registerPacket(PlayerDisconnectCallPacket);
@@ -1548,7 +1548,7 @@ class PlayerSpawnCallPacket extends Packet {
         this.player = TypeIO.readEntity(buf);
     }
     handleClient(nc:NetClient) {
-        say(`[PlayerSpawnCallPacket] Player with the ID [acid]${this.player}[reset] spawned at [yellow](${this.tile!.x},${this.tile!.y})`);
+        say(`[PlayerSpawnCallPacket] Player with the ID [acid]${this.player}[] spawned at [yellow](${this.tile!.x},${this.tile!.y})`);
         nc.units![this.player!] = {
             id:this.player,
             position:{
@@ -1737,7 +1737,7 @@ class SendMessageCallPacket extends Packet {
     }
     handleClient(n:NetClient) {
         //n.sendMessage(this.message);
-        say(`Message from [italic][red]the server[reset]: [white]${this.message}`);
+        say(`Message from [italic][red]the server[][]: [white]${this.message}`);
     }
 }
 registerPacket(SendMessageCallPacket);
@@ -1841,7 +1841,7 @@ class SetMapAreaCallPacket extends Packet {
         this.h = buf.getInt();
     }
     handleClient(nc: NetClient): void {
-        say(`[SetMapAreaCallPacket]: Map size set to [yellow](${this.x},${this.y})[reset] with size [yellow]${this.w}x${this.h})`)
+        say(`[SetMapAreaCallPacket]: Map size set to [yellow](${this.x},${this.y})[] with size [yellow]${this.w}x${this.h})`)
     }
 }
 registerPacket(SetMapAreaCallPacket);
@@ -2124,7 +2124,7 @@ class TileTapCallPacket extends Packet {
         TypeIO.writeTile(buf,this.tile!);
     }
     handleClient(): void {
-        say(`Player [blue]${this.player}[reset] tapped tile [yellow]${this.tile!.toPosString()}[reset].`);
+        say(`Player [blue]${this.player}[] tapped tile [yellow]${this.tile!.toPosString()}[].`);
     }
 }
 registerPacket(TileTapCallPacket);
@@ -2535,29 +2535,29 @@ for (let i=0;i<255;i++){
     if (packetInstance._incompletPacket){
         placeholderPacketCount++;
         if (!config.hideIncompletPacketWarning){
-            warn(`Packet [acid][italic]${packetName}[reset][yellow] (ID:[acid]${i}[yellow]) is a placholder.`)
+            warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) is a placholder.`)
         }
     }
     if (!packetVersion){
-        warn(`Packet [acid][italic]${packetName}[reset][yellow] (ID:[acid]${i}[yellow]) does not have a version!`);
+        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) does not have a version!`);
         packetsToUpdate++;
     }else if (packetVersion < config.version){
-        warn(`Packet [acid][italic]${packetName}[reset][yellow] (ID:[acid]${i}[yellow]) may need updating! Packet version: [acid]${packetVersion}[reset]. Current version: [acid]${config.version}[reset].`);
+        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) may need updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
         packetsToUpdate++;
     }else if (Math.floor(packetVersion) > config.version){
-        warn(`Packet [acid][italic]${packetName}[reset][yellow] (ID:[acid]${i}[yellow]) either has a incorrect version or the global version config needs updating! Packet version: [acid]${packetVersion}[reset]. Current version: [acid]${config.version}[reset].`);
+        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) either has a incorrect version or the global version config needs updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
         packetsToUpdate++;
     }
     if (!(packetName in packets)){
-        warn(`Packet [acid][italic]${packetName}[reset][yellow] (ID:[acid]${i}[yellow]) is not defined in the packet lookup object but is registered.`);
+        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) is not defined in the packet lookup object but is registered.`);
     }
 }
-say(`[white]${packetCount}[reset] packets loaded.`);
+say(`[white]${packetCount}[] packets loaded.`);
 if (placeholderPacketCount > 0){
-    say(`[white]${placeholderPacketCount}[reset] placeholder packet${placeholderPacketCount === 1 ? '':'s'}.`);
+    say(`[white]${placeholderPacketCount}[] placeholder packet${placeholderPacketCount === 1 ? '':'s'}.`);
 }
 if (packetsToUpdate > 0){
-    say(`[white]${packetsToUpdate}[reset] packet${packetsToUpdate === 1 ? '':'s'} may need updating.`);
+    say(`[white]${packetsToUpdate}[] packet${packetsToUpdate === 1 ? '':'s'} may need updating.`);
 }
 
 say(`Packets loaded.`);

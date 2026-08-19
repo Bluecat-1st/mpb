@@ -58,11 +58,11 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 }
                 if (ping) {
                     client.call.sendChatMessage(`Ping: ${ping}ms`);
-                    say(`Ping was requested and returned at [green]${ping}[reset]ms.`);
+                    say(`Ping was requested and returned at [green]${ping}[]ms.`);
                 } else {
                     // First of all, how? Might as well play safe:
                     try {
-                        client.call.sendChatMessage(`Ping check timed out!`);
+                        client.call.sendChatMessage(`[yellow]Ping check timed out!`);
                     } catch (err) {
                         console.error(err);
                     }
@@ -80,17 +80,17 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 const y = parseInt(args[1]);
                 if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
                     //warn(`Warning: Command moveto needs two VALID numbers afterwards as arguments.`);
-                    client.call.sendChatMessage(`[yellow]Warning: Command moveto needs two [red]VALID[yellow] numbers afterwards as arguments.`);
+                    client.call.sendChatMessage(`[yellow]Warning: Command moveto needs two [red]VALID[] numbers afterwards as arguments.`);
                 } else {
                     //say(`Moving to [yellow](${x},${y})`);
-                    client.call.sendChatMessage(`Moving to [yellow](${x},${y})[white].`);
+                    client.call.sendChatMessage(`Moving to [yellow](${x},${y})[].`);
                     client.netClient.player?.controller.moveTo(<float>x,<float>y,8,1);
                 }
             }
         }else if (p.unformatted === `${config.commandPrefix} info`) {
             let info = `MPB's status:\n`;
             if (client.netClient.player) {
-                info += `Pos:[yellow](${client.netClient.player.unit.position?.x},${client.netClient.player.unit.position?.y})\n`;
+                info += `Pos:[yellow](${client.netClient.player.unit.position?.x},${client.netClient.player.unit.position?.y})[]`;
             } else {
                 info += `Pos: [red]Error: No player unit[]`;
             }
@@ -107,7 +107,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
         }else if (p.unformatted.startsWith(`${config.commandPrefix} say `)) {
             const arg = p.unformatted!.slice(`${config.commandPrefix} say `.length).trim();
             warn(arg);
-            const text = `(By [blue]${p.playersender ?? 'unknown sender'}[white]) ${arg}`;
+            const text = `(By [blue]${p.playersender ?? 'unknown sender'}[]) ${arg}`;
             client.call.sendChatMessage(text ?? `[red]Error`);
         }else if (p.unformatted === `${config.commandPrefix} respawn`){
             client.netClient.player?.respawn();
@@ -141,7 +141,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 case "number":{
                     const num = Number.parseFloat(args[1]);
                     if ((!num && num!==0) || Number.isNaN(num)){
-                        const err = `[red]Unable to parse number [white]${args[1]}[red].`;
+                        const err = `[red]Unable to parse number [white]${args[1]}[].`;
                         say(err);
                         client.call.sendChatMessage(err);
                         return;
@@ -156,7 +156,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     }else if (bool === 'false'){
                         (controller as any as Record<string, unknown>)[args[0]] = false;
                     }else{
-                        const err = `[red]Invalid boolian [white]${bool}[red].`;
+                        const err = `[red]Invalid boolian [white]${bool}[].`;
                         say(err);
                         client.call.sendChatMessage(err);
                         return;
@@ -167,13 +167,13 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 case "symbol":
                 case "undefined":
                 case "function":{
-                    const err = `[yellow]Param [white]${args[0]}[yellow] is of disallowed type [acid]${typeof param}[yellow].`;
+                    const err = `[yellow]Param [white]${args[0]}[] is of disallowed type [acid]${typeof param}[].`;
                     say(err);
                     client.call.sendChatMessage(err);
                     return;
                 }
                 case "object":{
-                    const err = `[yellow]Param [white]${args[0]}[yellow] is of disallowed type [acid]${param === null ? 'null':'object'}[yellow].`;
+                    const err = `[yellow]Param [white]${args[0]}[] is of disallowed type [acid]${param === null ? 'null':'object'}[].`;
                     say(err);
                     client.call.sendChatMessage(err);
                     return;
@@ -217,7 +217,7 @@ pingHost(config.server.port, config.server.ip, (data, err) => {
     if (err) {
         throw err;
     } else {
-        if (!data) throwError(`[yellow]pingHost[reset][red][bold] did not throw an error but it didn't return data on the server!`);
+        if (!data) throwError(`[yellow]pingHost[] did not throw an error but it didn't return data on the server!`);
         say(`Server data:`);
         readObjectFancy(data);
         say(`-`.repeat(10));

@@ -177,11 +177,11 @@ export class SaveIO {
         const version = buf.getInt();// Version
         console.log(`[readDataPatches] Version: ${version}`);
         if (version !== 2){
-            warn(`[readDataPatches] This reader has not been setup for version [acid]${version}[reset]`);
+            warn(`[readDataPatches] This reader has not been setup for version [acid]${version}[]`);
         }
 
         const total = buf.getInt();
-        say(`[readDataPatches] [acid]${total}[reset] assets...`);
+        say(`[readDataPatches] [acid]${total}[] assets...`);
         const assets = [];
         for (let i=0;i<total;i++){
             const typeID = buf.get();

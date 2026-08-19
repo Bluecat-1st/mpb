@@ -410,7 +410,7 @@ export class NetClient extends EventEmitter {
             const type = buf.get();
             const total = buf.getShort();
             if (!contentTypes[type]){
-                throwError(`Unknown content type: [acid]${type}[reset]`);
+                throwError(`Unknown content type: [acid]${type}[]`);
             }
             say(`Loading content type: ${contentTypes[type]}`);
             cmap[contentTypes[type]] = [];
@@ -478,7 +478,7 @@ export class NetClient extends EventEmitter {
             const keysToRemove = Object.keys(this.units)
                 .slice(0, Object.keys(this.units).length - maxLength);
             keysToRemove.forEach((key) => {
-                console.log(`Removing unit [acid]${key}[reset].`);
+                say(`Removing unit [acid]${key}[].`);
                 delete this.units![key as any];
             });
         }

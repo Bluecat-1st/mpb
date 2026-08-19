@@ -1,5 +1,5 @@
 import type { Mindustry } from "./client.js";
-import type { packets as Packets } from './Packets.js';
+import { namePacket, packets as Packets } from './Packets.js';
 import type { float, int, nullableShort, nullableString, short } from "./primitives.js";
 import { say, throwError, warn } from "./textFormater.js";
 
@@ -17,7 +17,7 @@ export class Utils{
 	static getContentByID(contentType:string,contentID:nullableShort):nullableString{
 		if (!global.contentMap) throwError(`Content map is not initalized!`);
 		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);
+		if (!map) throwError(`Content type [acid][italic]${contentType}[][] does not exit on the content map!`);
 		if (contentID === null) return null;
 		const content = map[contentID];
 		if (!content) return null;
@@ -27,7 +27,7 @@ export class Utils{
 		if (!this.mindustry.netClient?.player) return null;
 		if (!global.contentMap) throwError(`Content map is not initalized!`);
 		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);
+		if (!map) throwError(`Content type [acid][italic]${contentType}[]]\ does not exit on the content map!`);
 		if (contentID === null) return null;
 		const content = map[contentID];
 		if (!content) return null;
@@ -36,7 +36,7 @@ export class Utils{
 	static getContentID(contentType:string,contentName:nullableString):nullableShort{
 		if (!global.contentMap) throwError(`Content map is not initalized!`);
 		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[reset] does not exit on the content map!`);
+		if (!map) throwError(`Content type [acid][italic]${contentType}[][] does not exit on the content map!`);
 		if (contentName === null) return null;
 		const contentID = map.indexOf(contentName) as short;
 		return contentID === -1 ? null : contentID;
@@ -109,31 +109,33 @@ export class Utils{
 
 export function formatValue(v:unknown):string{
 	switch(typeof v){
-		case "string":return `[yellow]${v}[reset]`;
-		case "number":return `[acid]${v}[reset]`;
-		case "bigint":return `[acid]${v}[reset]`;
-		case "boolean":return v?'[green][bold]True[reset]':'[red][bold]False[reset]';
-		case "symbol":return `[blue]Symbol: ${v.toString()}[reset]`;
-		case "undefined":return `[orange]Undefined[reset]`;
+		case "string":return `[yellow]${v}[]`;
+		case "number":return `[acid]${v}[]`;
+		case "bigint":return `[acid]${v}[]`;
+		case "boolean":return v?'[green][bold]True[][]':'[red][bold]False[][]';
+		case "symbol":return `[blue]Symbol: ${v.toString()}[]`;
+		case "undefined":return `[orange]Undefined[]`;
 		case "object":{
 			if (v === null){
-				return `[Orange]Null[reset]`;
+				return `[orange]Null[]`;
 			}else{
-				if ('toString' in v){
-					return `[blue]Object: ${v.toString()}[reset]`;
-				}else{
-					return `[blue]Object[reset]`;
+				if (v instanceof Packets.Packet){
+					return `[acid][italic]${namePacket(v)}[][]`;
 				}
+				if ('toString' in v){
+					return `[blue]Object: ${v.toString()}[]`;
+				}
+				return `[blue]Object[]`;
 			}
 		}
-		case "function":return `[blue]Function(){...}[reset]`;
-		default:return `[red][Imposible Error: Unknown value type ${typeof v}][reset]`;
+		case "function":return `[blue]Function(){...}[]`;
+		default:return `[red][Imposible Error: Unknown value type ${typeof v}][]`;
 	}
 }
 
 export function readObjectFancy(object:object,prefix:string|null = null){
 	for (const [key, value] of Object.entries(object) as [string, unknown][]){
-		const pre = `${prefix ? `${prefix}.`:''}[acid][italic]${key}[reset]`;
+		const pre = `${prefix ? `${prefix}.`:''}[acid][italic]${key}[][]`;
 		const start = `${pre} = `;
 		if (typeof value === 'object'){
 			if (Array.isArray(value)){

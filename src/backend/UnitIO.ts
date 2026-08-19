@@ -145,7 +145,7 @@ export class UnitIO {
 			//TypeIO.readCommand(buf);
 		    let mouseX = buf.getFloat();
 		    let mouseY = buf.getFloat();
-			say(`Mouse pos: [yellow](${mouseX},${mouseY})[reset]`);
+			say(`Mouse pos: [yellow](${mouseX},${mouseY})[]`);
 		    let name = TypeIO.readString(buf);
 			say(`Name: ${formatValue(name)}`);
 			buf.getShort(); // Selected block

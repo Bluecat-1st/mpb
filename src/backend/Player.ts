@@ -79,10 +79,10 @@ export class Player {
 		this.nc.on("BeginPlaceCallPacket", (p:InstanceType<typeof Packets.BeginPlaceCallPacket>) => {
 			let tile = this.nc.game.world.get(p.x!, p.y!);
 			if (!tile){
-				warn(`No tile at [italic](${p.x},${p.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.x},${p.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building at [italic](${p.x},${p.y})[reset][yellow].`);
+				warn(`No building at [italic](${p.x},${p.y})[].`);
 				return;
 			}
 			tile.setBlock(p.result!);
@@ -93,10 +93,10 @@ export class Player {
 		this.nc.on("BeginBreakCallPacket", (p:InstanceType<typeof Packets.BeginBreakCallPacket>) => {
 			let tile = this.nc.game.world.get(p.x!, p.y!);
 			if (!tile){
-				warn(`No tile at [italic](${p.x},${p.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.x},${p.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building at [italic](${p.x},${p.y})[reset][yellow].`);
+				warn(`No building at [italic](${p.x},${p.y})[].`);
 				return;
 			}
 			tile.build[0].atConstruct = true;
@@ -104,10 +104,10 @@ export class Player {
 		this.nc.on("ConstructFinishCallPacket", (p:InstanceType<typeof Packets.ConstructFinishCallPacket>) => {
 			const tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
 			if (!tile){
-				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}
 			tile.setBlock(p.block!);
@@ -123,10 +123,10 @@ export class Player {
 		this.nc.on("DeconstructFinishCallPacket", (p:InstanceType<typeof Packets.DeconstructFinishCallPacket>) => {
 			let tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
 			if (!tile){
-				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}
 			tile.build[0].atConstruct = false;
@@ -150,10 +150,10 @@ export class Player {
 		this.nc.on("SetTileCallPacket", (p:InstanceType<typeof Packets.SetTileCallPacket>) => {
 			let tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
 			if (!tile){
-				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No building at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}
 			tile.setBlock(p.block!);
@@ -163,10 +163,10 @@ export class Player {
 		this.nc.on("RotateBlockCallPacket", (p:InstanceType<typeof Packets.RotateBlockCallPacket>) => {
 			let tile = this.nc.game.world.get(p.build!.x as number as int, p.build!.y as number as int)!;
 			if (!tile){
-				warn(`No tile at [italic](${p.build?.x},${p.build?.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.build?.x},${p.build?.y})[].`);
 				return;
 			}else if (!tile.build){
-				warn(`No building on [italic](${p.build?.x},${p.build?.y})[reset][yellow].`);
+				warn(`No building on [italic](${p.build?.x},${p.build?.y})[].`);
 				return;
 			}
 			tile.build[0].rotation = (tile.build[0].rotation + (p.direction ? 1 : -1)) as int;
@@ -174,7 +174,7 @@ export class Player {
 		this.nc.on("SetFloorCallPacket", (p:InstanceType<typeof Packets.SetFloorCallPacket>) => {
 			let tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
 			if (!tile){
-				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}
 			tile.setFloor(p.floor!);
@@ -183,7 +183,7 @@ export class Player {
 		this.nc.on("SetOverlayCallPacket", (p:InstanceType<typeof Packets.SetOverlayCallPacket>) => {
 			let tile = this.nc.game.world.get(p.tile!.x, p.tile!.y);
 			if (!tile){
-				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[reset][yellow].`);
+				warn(`No tile at [italic](${p.tile!.x},${p.tile!.y})[].`);
 				return;
 			}
 			tile.setOverlay(p.overlay!);

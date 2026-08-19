@@ -9,12 +9,12 @@ export const config = {
     dontCompress:false,
     showAllPackets:false,
     hidePacketSends:false,
-    hidePacketReseives:true,
-    getAssets:false,
+    hidePacketReseives:false,
+    getAssets:true,
     /** Some packets groups to hide */
     hideGroup:{
         /** Unit related stuff */
-        units:true,
+        units:false,
         /** Building and decontructing */
         contruction:true,
     },
@@ -25,7 +25,7 @@ export const config = {
     /** Removes color formating tags and some gliphs */
     escapeMessageFormating:false,
     /** Some people for some reason send messages with gliphs at the end I can get rid of using normal JS methods, so this whitelist forces them out, however it is a a cost of not being able to use Mindustry's icons/emojis without having to manualy whitelist them.... */
-    whitelistGliphFiltering:true,
+    whitelistGliphFiltering:false,
     server:{
         /*
         IPs:
@@ -34,7 +34,7 @@ export const config = {
         * 162.248.101.53: Fish Sandbox (Public server)
 
         */
-        ip:"162.248.101.53",
+        ip:"localhost",
         port:6567
     },
     name:"mpb (Bot)",

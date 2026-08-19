@@ -41,10 +41,10 @@ export class PacketSerializer {
                         try {
                             packet.read(this.#temp/*, length*/); // Nothing uses length, there is not point.
                             if (this.#temp.hasRemaining()){
-                                warn(`Did not finish reading packet [acid][italic]${namePacket(id)}[reset][yellow] by [acid]${this.#temp.remaining()}[reset][yellow] bytes.`);
+                                warn(`Did not finish reading packet [acid][italic]${namePacket(id)}[][] by [acid]${this.#temp.remaining()}[] bytes.`);
                             }
                         } catch (err) {
-                            say(`[red]Error reading packet [acid][italic]${namePacket(packet)}[reset][red] (ID [acid]${id}[reset][red]):`);
+                            say(`[red][bold]Error reading packet [acid][italic]${namePacket(packet)}[][] (ID [acid]${id}[]):`);
                             if (err instanceof Error){
                                 throwError(err.stack??err.message);
                             }else{
@@ -59,7 +59,7 @@ export class PacketSerializer {
                         try{
                             packet.read(this.#temp/*, length*/);
                         }catch (err){
-                            say(`[red]Error reading packet [acid][italic]${namePacket(packet)}[reset][red] (ID [acid]${id}[reset][red]):`);
+                            say(`[red][bold]Error reading packet [acid][italic]${namePacket(packet)}[][] (ID [acid]${id}[]):`);
                             if (err instanceof Error){
                                 throwError(err.stack??err.message);
                             }else{
@@ -69,9 +69,9 @@ export class PacketSerializer {
                         buf.position(buf.position() + this.#temp.position());
                     }
                     if (((!packet._silent) || config.showAllPackets) && !config.hidePacketReseives){
-                        say(`Reseived packet [${packet._incompletPacket?'yellow':'acid'}][italic]${namePacket(id)}[reset] (ID:[acid]${id}[reset]${packet._incompletPacket?`, [yellow]Incomplete Packet[reset]`:''}${packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version?`, [yellow]this packet may need updating (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[reset][yellow])[reset]`:''})`);
+                        say(`Reseived packet [${packet._incompletPacket?'yellow':'acid'}][italic]${namePacket(id)}[][] (ID:[acid]${id}[]${packet._incompletPacket?`, [yellow]Incomplete Packet[]`:''}${packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version?`, [yellow]this packet may need updating (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])[]`:''})`);
                     }else if (packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version){
-                        warn(`Packet [acid][italic]${namePacket(packet)}[reset][yellow] (ID:[acid]${packet._id}[reset][yellow]) may need updating. (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[reset][yellow])`);
+                        warn(`Packet [acid][italic]${namePacket(packet)}[][] (ID:[acid]${packet._id}[]) may need updating. (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])`);
                     }
                     return packet;
                 }else{
@@ -118,7 +118,7 @@ export class PacketSerializer {
             p.connectionID = buf.getInt();
             return p;
         } else {
-            throwError(`Unknown FrameworkMessage [acid]${id}[reset][red][bold]!`);
+            throwError(`Unknown FrameworkMessage [acid]${id}[]!`);
         }
     }
     write(buf:DataStream, object:Buffer|DataStream|FrameworkMessage|(typeof Packets.Packet)) {
@@ -129,9 +129,9 @@ export class PacketSerializer {
             this.writeFramework(buf, object);
         } else if (object instanceof Packets.Packet) {
             if ((!object._silent || config.showAllPackets) && !config.hidePacketSends){
-                say(`Sending packet [acid][italic]${namePacket(object)}[reset] (ID:[acid]${object._id}[reset]).${object._lastUpdatedFor===null||object._lastUpdatedFor<config.version?` [yellow]This packet may need updating. (Current version:[acid]${object._lastUpdatedFor??'Unknown Version'}[reset][yellow])[reset]`:''}`);
+                say(`Sending packet [acid][italic]${namePacket(object)}[][] (ID:[acid]${object._id}[]).${object._lastUpdatedFor===null||object._lastUpdatedFor<config.version?` [yellow]This packet may need updating. (Current version:[acid]${object._lastUpdatedFor??'Unknown Version'}[])[]`:''}`);
             }else if (object._lastUpdatedFor===null||object._lastUpdatedFor<config.version){
-                warn(`Packet [acid][italic]${namePacket(object)}[reset][yellow] (ID:[acid]${object._id}[reset][yellow]) may need updating. (Current version:[acid]${object._lastUpdatedFor??'Unknown Version'}[reset][yellow])`);
+                warn(`Packet [acid][italic]${namePacket(object)}[] (ID:[acid]${object._id}[]) may need updating. (Current version:[acid]${object._lastUpdatedFor??'Unknown Version'}[])`);
             }
             buf.put(object._id as byte);
             this.#temp.clear();
