@@ -41,10 +41,10 @@ export class PacketSerializer {
                         try {
                             packet.read(this.#temp/*, length*/); // Nothing uses length, there is not point.
                             if (this.#temp.hasRemaining()){
-                                warn(`Did not finish reading packet [acid][italic]${namePacket(id)}[][] by [acid]${this.#temp.remaining()}[] bytes.`);
+                                warn(`Did not finish reading packet [acid][italic]${namePacket(id)}[] by [acid]${this.#temp.remaining()}[] bytes.`);
                             }
                         } catch (err) {
-                            say(`[red][bold]Error reading packet [acid][italic]${namePacket(packet)}[][] (ID [acid]${id}[]):`);
+                            say(`[red][bold]Error reading packet [acid][italic]${namePacket(packet)}[] (ID [acid]${id}[]):`);
                             if (err instanceof Error){
                                 throwError(err.stack??err.message);
                             }else{

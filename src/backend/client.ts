@@ -12,11 +12,6 @@ import { BlockIO } from "./BlockIO.js";
 import { UnitIO } from "./UnitIO.js";
 import { Player } from "./Player.js";
 import { inflate } from "pako";
-import contentTypesData from './json/ContentTypes.json' with { type: 'json' };
-const contentTypes = contentTypesData.contentTypes;
-if (!contentTypes || !Array.isArray(contentTypes)) {
-    throw new Error('json/ContentTypes.json.contentTypes must be an array of strings.');
-}
 import { Call } from "./Call.js";
 import { World } from "./World.js";
 import { Utils } from "./Utills.js";
@@ -25,6 +20,14 @@ import { byte, type nullableString, type float, type int, type long, type short 
 import { Logger } from "./logger.js";
 import { DataAssetCache } from "./DataAssetType.js";
 import { config } from "./botConfig.js";
+
+/** There are *some* use cases where having this as an export can be usefull. */
+export enum contentTypes  {
+    "item", "block", "mech_UNUSED", "bullet", "liquid", "status",
+    "unit", "weather", "effect_UNUSED", "sector", "loadout_UNUSED",
+    "typeid_UNUSED", "error", "planet", "ammo_UNUSED", "team",
+    "unitCommand", "unitStance"
+};
 
 export interface Unit {
     position?:{
@@ -47,6 +50,9 @@ export interface Unit {
     revis?:short;
     selectedBlock?:nullableString;
     miningpos?:{x:number,y:number};
+    command?:byte;
+    stance?:byte;
+    lastControlledBy?:int;
     [x:string]:any;
 }
 
@@ -405,19 +411,22 @@ export class NetClient extends EventEmitter {
 
         console.log(`Loading content.`);
         const mapped = buf.get();
-        const cmap:Record<string,string[]> = {}
+        const cmap:typeof global.contentMap = {}
         for (let i = 0; i < mapped; i++) {
             const type = buf.get();
             const total = buf.getShort();
             if (!contentTypes[type]){
                 throwError(`Unknown content type: [acid]${type}[]`);
             }
+            if (contentTypes[type].includes(`_UNUSED`)){
+                warn(`Unexpected content type ${contentTypes[type]}`);
+            }
             say(`Loading content type: ${contentTypes[type]}`);
-            cmap[contentTypes[type]] = [];
+            cmap[contentTypes[type] as keyof typeof contentTypes] = [];
             for (let j = 0; j < total; j++) {
                 const str = buf.readString();
                 //say(str);
-                cmap[contentTypes[type]]!.push(str);
+                cmap[contentTypes[type] as keyof typeof contentTypes]!.push(str);
             }
         }
         buf.printStatus(`Read content`);
@@ -460,7 +469,7 @@ export class NetClient extends EventEmitter {
         say(`[NetClient.loadRequiredAssets] Requesting [acid]${missing.length}[] asset(s) from the server.`);
         this.game.call.requestAssets(missing);
     }
-    updateUnitList(data:Record<number,Unit>){
+    private updateUnitList(data:Record<number,Unit>){
         for (let key in data) {
             this.units![key] = data[key]!;
         }

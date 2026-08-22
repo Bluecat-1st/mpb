@@ -1,54 +1,12 @@
-import type { Mindustry } from "./client.js";
-import { namePacket, packets as Packets } from './Packets.js';
 import type { float, int, nullableShort, nullableString, short } from "./primitives.js";
+import type { contentTypes, Mindustry } from "./client.js";
+import { namePacket, packets as Packets } from './Packets.js';
 import { say, throwError, warn } from "./textFormater.js";
 
 export class Utils{
 	mindustry;
 	constructor(mindustry:Mindustry){
 		this.mindustry = mindustry;
-	}
-	/**
-	 * Get the content from it's ID.
-	 * @param contentType - The content type to get from.
-	 * @param contentID - The content ID.
-	 * @deprecated This is prone to failling, use the safer version from a instace of {@link Utils}.
-	 */
-	static getContentByID(contentType:string,contentID:nullableShort):nullableString{
-		if (!global.contentMap) throwError(`Content map is not initalized!`);
-		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[][] does not exit on the content map!`);
-		if (contentID === null) return null;
-		const content = map[contentID];
-		if (!content) return null;
-		return content;
-	}
-	getContentByID(contentType:string,contentID:nullableShort):nullableString{
-		if (!this.mindustry.netClient?.player) return null;
-		if (!global.contentMap) throwError(`Content map is not initalized!`);
-		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[]]\ does not exit on the content map!`);
-		if (contentID === null) return null;
-		const content = map[contentID];
-		if (!content) return null;
-		return content;
-	}
-	static getContentID(contentType:string,contentName:nullableString):nullableShort{
-		if (!global.contentMap) throwError(`Content map is not initalized!`);
-		const map = global.contentMap[contentType];
-		if (!map) throwError(`Content type [acid][italic]${contentType}[][] does not exit on the content map!`);
-		if (contentName === null) return null;
-		const contentID = map.indexOf(contentName) as short;
-		return contentID === -1 ? null : contentID;
-	}
-	static getBlockByName(block:string){
-		return Utils.getContentID('block',block);
-	}
-	static getItemByName(item:string){
-		return Utils.getContentID('item',item);
-	}
-	static getUnitByName(unit:string){
-		return Utils.getContentID('unit',unit);
 	}
 	static escapeColors(str:string){
 		const colors = [
@@ -77,6 +35,65 @@ export class Utils{
 	        .join('');
 	}
 	// Custom Utills
+	/**
+	 * Get the content from it's ID.
+	 * @param contentType - The content type to get from.
+	 * @param contentID - The content ID.
+	 * @deprecated This is prone to failling while mpb is starting, use the safer version from a instace of {@link Utils}.
+	 */
+	static getContentByID(contentType:keyof typeof contentTypes,contentID:nullableShort):nullableString{
+		if (!global.contentMap) throwError(`Content map is not initalized!`);
+		const map = global.contentMap[contentType];
+		if (!map) throwError(`Content type [acid][italic]${contentType}[italic][] does not exit on the content map!`);
+		if (contentID === null) return null;
+		const content = map[contentID];
+		if (!content) return null;
+		return content;
+	}
+	getContentByID(contentType:keyof typeof contentTypes,contentID:nullableShort):nullableString{
+		if (!this.mindustry.netClient?.player) return null;
+		if (!global.contentMap) throwError(`Content map is not initalized!`);
+		const map = global.contentMap[contentType];
+		if (!map) throwError(`Content type [acid][italic]${contentType}[italic][] does not exit on the content map!`);
+		if (contentID === null) return null;
+		const content = map[contentID];
+		if (!content) return null;
+		return content;
+	}
+	/**
+	 * Get the content ID.
+	 * @param contentType - The content type to get from.
+	 * @param contentID - The content.
+	 * @deprecated This can maybe fail like {@link Utils.getContentByID}, so this is just to be safe,
+	 */
+	static getContentID(contentType:keyof typeof contentTypes,contentName:nullableString):nullableShort{
+		if (!global.contentMap) throwError(`Content map is not initalized!`);
+		const map = global.contentMap[contentType];
+		if (!map) throwError(`Content type [acid][italic]${contentType}[italic][] does not exit on the content map!`);
+		if (contentName === null) return null;
+		const contentID = map.indexOf(contentName) as short;
+		return contentID === -1 ? null : contentID;
+	}
+	getContentID(contentType:keyof typeof contentTypes,contentName:nullableString):nullableShort{
+		if (!this.mindustry.netClient?.player) return null;
+		const map = global.contentMap[contentType];
+		if (!map) throwError(`Content type [acid][italic]${contentType}[italic][] does not exit on the content map!`);
+		if (contentName === null) return null;
+		const contentID = map.indexOf(contentName) as short;
+		return contentID === -1 ? null : contentID;
+	}
+	/** @deprecated See {@link Utils.getContentID} */
+	static getBlockByName(block:string){
+		return Utils.getContentID('block',block);
+	}
+	/** @deprecated See {@link Utils.getContentID} */
+	static getItemByName(item:string){
+		return Utils.getContentID('item',item);
+	}
+	/** @deprecated See {@link Utils.getContentID} */
+	static getUnitByName(unit:string){
+		return Utils.getContentID('unit',unit);
+	}
 	static chatMsgFromSelf(packet:InstanceType<typeof Packets.SendMessageCallPacket2>,self:Mindustry):boolean{
 		if (!self.netClient?.player?.id){
 			warn('The bot does not have an player ID!');
@@ -112,7 +129,7 @@ export function formatValue(v:unknown):string{
 		case "string":return `[yellow]${v}[]`;
 		case "number":return `[acid]${v}[]`;
 		case "bigint":return `[acid]${v}[]`;
-		case "boolean":return v?'[green][bold]True[][]':'[red][bold]False[][]';
+		case "boolean":return v?'[green][bold]True[][]':'[red][bold]False[bold][]';
 		case "symbol":return `[blue]Symbol: ${v.toString()}[]`;
 		case "undefined":return `[orange]Undefined[]`;
 		case "object":{
@@ -120,7 +137,7 @@ export function formatValue(v:unknown):string{
 				return `[orange]Null[]`;
 			}else{
 				if (v instanceof Packets.Packet){
-					return `[acid][italic]${namePacket(v)}[][]`;
+					return `[acid][italic]${namePacket(v)}[italic][]`;
 				}
 				if ('toString' in v){
 					return `[blue]Object: ${v.toString()}[]`;
@@ -135,7 +152,7 @@ export function formatValue(v:unknown):string{
 
 export function readObjectFancy(object:object,prefix:string|null = null){
 	for (const [key, value] of Object.entries(object) as [string, unknown][]){
-		const pre = `${prefix ? `${prefix}.`:''}[acid][italic]${key}[][]`;
+		const pre = `${prefix ? `${prefix}.`:''}[acid][italic]${key}[italic][]`;
 		const start = `${pre} = `;
 		if (typeof value === 'object'){
 			if (Array.isArray(value)){

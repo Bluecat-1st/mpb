@@ -1,7 +1,7 @@
 import type { DataStream } from "./DataStream.js";
 import type { Tile } from "./Tiles.js";
 import type { World } from "./World.js";
-import { boolByte, byteFalse, byteTrue, float, type byte, type double, type int, type long, type nullableShort, short, type ushort, type nullableString, type nullableByte } from "./primitives.js";
+import { float, type byte, type double, type int, type long, type nullableShort, short, type ushort, type nullableString, type nullableByte } from "./primitives.js";
 import { Point2 } from "./Math.js";
 import { BlockIO } from "./BlockIO.js";
 import { UnitIO } from "./UnitIO.js";
@@ -9,7 +9,7 @@ import { say, throwError, warn } from "./textFormater.js";
 import { AdminAction } from "./Packets.js";
 import { formatValue, Utils } from "./Utills.js";
 import blocksTypes from './json/BlocksTypes.json' with {type:'json'};
-import type { Mindustry } from "./client.js";
+import type { Mindustry, Unit } from "./client.js";
 
 /** `[<MObject>TypeID, value]` */
 type readObjectReturn = 
@@ -56,11 +56,15 @@ export interface Plan {
     config?: readObjectReturn
 }
 
+export type Vec = {x:float,y:float};
+
 export class TypeIO {
     static world?:World;
     static game?: Mindustry;
+    static utills: Utils;
     /** Sets up some variables required for some operations to work */
     static setup(mindustry:Mindustry){
+        TypeIO.utills = mindustry.utils;
         TypeIO.world = mindustry.world;
         TypeIO.game = mindustry;
     }
@@ -99,7 +103,7 @@ export class TypeIO {
         if (id === -1){
             id = null;
         }
-        return this.game?.utils.getContentByID('block',id) ?? null;
+        return this.utills?.getContentByID('block',id) ?? null;
     }
     static writeItem(buf:DataStream, item:short|string|null){
         if (typeof item === 'string'){
@@ -114,7 +118,7 @@ export class TypeIO {
         if (id === -1){
             id = null;
         }
-        return Utils.getContentByID('item',id);
+        return TypeIO.game?.utils.getContentByID('item',id) ?? null;
     }
     static readIntSeq(buf:DataStream){
         const size = buf.getInt();
@@ -153,7 +157,7 @@ export class TypeIO {
     static writeTeam(buf:DataStream,team:byte){
         buf.put(team);
     }
-    static writeItemStacks(buf:DataStream, itemStacks:[short,int][]){
+    static writeItemStacks(buf:DataStream, itemStacks:[nullableString,int][]){
         buf.putShort(itemStacks.length as short);
         for (const stack of itemStacks){
             TypeIO.writeItems(buf,stack);
@@ -161,7 +165,7 @@ export class TypeIO {
     }
     static readItemStacks(buf:DataStream){
         const len = buf.getShort();
-        const stacks:[short,int][] = [];
+        const stacks:[nullableString,int][] = [];
         for (let i=0;i<len;i++){
             stacks.push(
                 TypeIO.readItems(buf)
@@ -191,11 +195,11 @@ export class TypeIO {
     }
     static writeWeather(buf:DataStream, weather:string){
         const contentID = Utils.getContentID('weather', weather);
-        buf.putShort(contentID === null ? short(-1) : contentID);
+        buf.putShort(contentID === null ? <short>-1 : contentID);
     }
     static readWeather(buf:DataStream):nullableString{
         const id = buf.getShort();
-        return Utils.getContentByID('weather',id === -1 ? null : id);
+        return TypeIO.game?.utils.getContentByID('weather',id === -1 ? null : id) ?? null;
     }
     /** A placeholder */
     static writeUnitTypeRaw(buf:DataStream,unitType:short){
@@ -207,10 +211,12 @@ export class TypeIO {
     }
     static readUnitContainer(buf:DataStream){
         if (!this.game?.netClient?.units) return;
-        const unit = this.readUnit(buf);
+        //const unit = this.readUnit(buf);
+        const id = buf.getInt();
+        const typeID = buf.getUInt();
 
-        const entity = UnitIO.read(buf,unit[0]);
-        this.game.netClient.units[unit[1]] = entity;
+        const entity = UnitIO.read(buf,typeID as number as byte);
+        this.game.netClient.units[id] = entity;
     }
     static writeShorts(buf:DataStream, shorts:short[]){
         buf.putShort(<short>shorts.length);
@@ -528,7 +534,7 @@ export class TypeIO {
         buf.putShort(build.x);
         buf.putShort(build.y);
     }
-    static writeVec2(buf:DataStream, vec:{x:float,y:float}){
+    static writeVec2(buf:DataStream, vec:Vec){
         buf.putFloat(vec.x);
         buf.putFloat(vec.y);
     }
@@ -561,11 +567,11 @@ export class TypeIO {
         let y = buf.getFloat();
         return {x, y}
     }
-    static writeItems(buf:DataStream, items:[short, int]) {
-        let id = items[0];
+    static writeItems(buf:DataStream, items:[nullableString, int]) {
+        let id = this.utills.getContentID('item',items[0]);
         let count = items[1];
         
-        buf.putShort(id);
+        buf.putShort(id ?? <short>-1);
         buf.putInt(count);
     }
     /**
@@ -653,7 +659,7 @@ export class TypeIO {
             let attackinfo: {
                 build?:int,
                 unit?:int,
-                vec?:{x:float,y:float}
+                vec?:Vec
             } = {};
             //let ctype: Record<number, any> = {};
             let ctype: byte[] = [];
@@ -778,12 +784,13 @@ export class TypeIO {
         }
     }
     /**
-     * @returns `[id, count]`
+     * @returns `[item, count]`
      */
     static readItems(buf:DataStream){
         let id = buf.getShort();
+        const item = this.utills.getContentByID('item',id);
         let count = buf.getInt();
-        return [id, count] as [short, int];
+        return [item, count] as [nullableString, int];
     }
     /**
      * @returns `[id, time]`
@@ -803,29 +810,29 @@ export class TypeIO {
         buf.putShort(id);
         buf.putFloat(time);
     }
-    static writePayload(buf:DataStream, payload:any) {
+    static writePayload(buf:DataStream, payload:Unit|[short,ReturnType<typeof BlockIO.readAll>]) {
         if (payload === null) {
-            buf.put(byteFalse);
+            buf.putBoolean(false);
             return;
         }
 
-        buf.put(byteTrue);
-        let type = boolByte(Array.isArray(payload));
-        buf.put(type);
+        buf.putBoolean(true);
+        const type = Array.isArray(payload);
+        buf.putBoolean(type);
 
-        if (type === 1) {
+        if (type) {
             let id = payload[0];
             let block = payload[1];
             let ver = block[0].ver;
 
             buf.putShort(id);
             buf.put(ver);
-            BlockIO.writeAll(buf, block, Utils.getContentByID('block',id)!, ver);
+            BlockIO.writeAll(buf, block, TypeIO.game?.utils.getContentByID('block',id)!, ver);
         } else {
             UnitIO.write(buf, payload, true);
         }
     }
-    static writeVecNullable(buf:DataStream, vec:{x:float,y:float}){
+    static writeVecNullable(buf:DataStream, vec:Vec){
         buf.putFloat(vec.x);
         buf.putFloat(vec.y);
     }

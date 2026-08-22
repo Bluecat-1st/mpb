@@ -1,4 +1,5 @@
+import { contentTypes } from './client.ts';
 declare global {
-    var contentMap: Record<string, string[]>;
+    var contentMap: Partial<Record<keyof typeof contentTypes, string[]>>;
 }
 export {};

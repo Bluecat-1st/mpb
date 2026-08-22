@@ -3,8 +3,8 @@ import { TypeIO } from "./TypeIO.js";
 import { formatValue, readObjectFancy } from "./Utills.js";
 import type { Unit } from "./client.js";
 import unitTypes from './json/UnitTypes.json' with {type:'json'};
-import type { byte, short } from "./primitives.js";
-import { say } from "./textFormater.js";
+import type { byte, short, uint } from "./primitives.js";
+import { say, throwError } from "./textFormater.js";
 
 export class UnitIO {
     static read(buf:DataStream, type:byte, rev?:boolean):Unit{
@@ -12,12 +12,15 @@ export class UnitIO {
 		if(rev){
 			revis = buf.getShort();
 		}
-		let unit:Unit = this.readMain(buf, (unitTypes as Record<string,string>)[type]!)
+		const utype = (unitTypes as Record<string,string>)[type];
+		if (!utype) throwError(`Unknown unit type [acid]${type}[]!`);
+		let unit:Unit = this.readMain(buf, utype);
 		unit.revis = revis!;
 		unit.type = type;
 		return unit;
 	}
 	static readMain(buf:DataStream, t:string){
+		say(`[UnitIO.readMain] Unit type [italic][acid]${t}[][italic]`);
 		if (t == "MechUnit" || t == "CrawlUnit" || t == "ElevationMoveUnit" || t == "TankUnit" || t == "UnitEntity" || t == "BlockUnitUnit" || t == "UnitWaterMove" || t == "LegsUnit" || t == "TimedKillUnit" || t == "PayloadUnit" || t == "BuildingTetherPayloadUnit") {
 		    let abils = TypeIO.readAbilities(buf);
 		    

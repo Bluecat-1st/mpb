@@ -1,7 +1,7 @@
 import type { DataStream } from "./DataStream.js";
 import { TypeIO } from "./TypeIO.js";
 import blocksParams from './json/BlocksParams.json' with {type:'json'};
-import { boolByte, byte, byteFalse, int, type float, type long, type short } from "./primitives.js";
+import { byte, int, type float, type long, type short } from "./primitives.js";
 
 
 export class BlockIO {
@@ -710,16 +710,16 @@ export class BlockIO {
     static writeBase(buf:DataStream, data:{
         health:float;
         legacy:boolean;
-        rotation:byte;
+        rotation:int;
         team:byte;
         ver:byte;
-        on:boolByte;
+        on:boolean;
         moduleBitmask:any;
         items:any;
-        power:[int[],float];
+        power:[int[],float]|undefined;
         liquids:any;
-        eff:byte;
-        opteff:byte;
+        eff:byte|undefined;
+        opteff:byte|undefined;
     }) {
 	    buf.putFloat(data.health);
 	    let rot = data.rotation & 0b01111111;
@@ -733,7 +733,7 @@ export class BlockIO {
 	    if (!data.legacy) {
 	        buf.put(ver);
 	        if (ver >= 1) {
-	            buf.put(data.on);
+	            buf.putBoolean(data.on);
 	        }
 	        if (ver >= 2) {
 	            buf.put(data.moduleBitmask);
@@ -744,19 +744,19 @@ export class BlockIO {
 	        this.writeItemsM(buf, data.items, data.legacy);
 	    }
 	    if ((data.moduleBitmask & 2) != 0) {
-	        this.writePowerM(buf, data.power);
+	        this.writePowerM(buf, data.power!);
 	    }
 	    if ((data.moduleBitmask & 4) != 0) {
 	        this.writeLiquidsM(buf, data.liquids);
 	    }
 
 	    if (ver <= 2) {
-	        buf.put(byteFalse);
+	        buf.putBoolean(false);
 	    }
 
 	    if (ver >= 3) {
-	        buf.put(data.eff);
-	        buf.put(data.opteff);
+	        buf.put(data.eff!);
+	        buf.put(data.opteff!);
 	    }
 	}
     static getModuleBitmask(id:string){
@@ -801,10 +801,10 @@ export class BlockIO {
 		let rot = buf.get();
 		let team = buf.get();
 		let rotation = rot & 0b01111111;
-		let ver = 0;
+		let ver = <byte>0;
 
 		let legacy = true;
-		let on;
+		let on = false;
 
 		let moduleBitmask = 0;
 		//if(blocksParams[id]){
@@ -813,9 +813,9 @@ export class BlockIO {
 		}
 
 		if((rot & 0b10000000) != 0){
-			ver = buf.get()
+			ver = buf.get();
 			if(ver >= 1){
-				on = buf.get();
+				on = buf.getBoolean();
 			}
 			if(ver >= 2){
 				moduleBitmask = buf.get();
@@ -835,7 +835,7 @@ export class BlockIO {
 			liquids = this.readLiquidsM(buf, legacy);
 		}
 
-		if(ver <= 2) buf.get()
+		if(ver <= 2) buf.get();
 
 		let eff, opteff;
 		if(ver >= 3){
@@ -843,7 +843,7 @@ export class BlockIO {
 			opteff = buf.get()
 		}
 		
-		let result = {
+		return {
 		    health,
 		    rotation:<int>rotation,
 		    team,
@@ -858,8 +858,6 @@ export class BlockIO {
 		    opteff,
 			atConstruct:false
 		}
-
-		return result
 	}
     static readAll(buf:DataStream, id:string, type:string, ver:byte){
 		let base = this.readBase(buf, id);
@@ -1186,7 +1184,7 @@ export class BlockIO {
 			}
 		}
 	}
-	static writeAll(buf:DataStream, build: any, type: string, ver: number){
+	static writeAll(buf:DataStream, build: ReturnType<typeof BlockIO.readAll>, type: string, ver: number){
 		this.writeBase(buf, build[0]);
 
 		this.writeMain(buf, type, ver, build[1]);

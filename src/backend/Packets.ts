@@ -1,17 +1,20 @@
+import type { PacketSerializer } from "./PacketSerializer.js"
 import type { NetClient } from "./client.js";
-import { DataStream } from "./DataStream.js";
 import type { Point2 } from "./Math.js";
-import { TypeIO, type Plan } from "./TypeIO.js";
-import { say, warn, throwError, formatText } from './textFormater.js';
 import type { Tile } from "./Tiles.js";
-import { byte, float, int, short, type long, type ushort, type nullableShort, type nullableInt, type nullableString } from "./primitives.js";
+import { DataStream } from "./DataStream.js";
+import { TypeIO, type Plan, type Vec } from "./TypeIO.js";
+import { say, warn, throwError, formatText } from './textFormater.js';
+import { byte, float, int, short, type long, type ushort, type nullableInt, type nullableString, type nullableByte } from "./primitives.js";
 import { config } from "./botConfig.js";
 import { formatValue } from "./Utills.js";
 import jsCrc from 'js-crc';
 const { crc32 } = jsCrc;
-import type { PacketSerializer } from "./PacketSerializer.js"
 
 say(`Loading packets...`);
+
+export type BuildPos = {x:short,y:short};
+export type NetUnit = [byte, int];
 
 export enum KickReason {
     kick, clientOutdated, serverOutdated, banned, gameover, recentKick,
@@ -93,7 +96,7 @@ export class Packet {
 }
 
 /** Adds a Packet class to the registery */
-function registerPacket(packet:new (...args: any[]) => Packet){
+function registerPacket(packet:new () => Packet){
     const id = (new packet())._id;
     if (id === (new Packet())._id){
         throwError(`Packet [acid][italic]${namePacket(packet)}[][] does not have it's ID defined!`)
@@ -106,11 +109,11 @@ function registerPacket(packet:new (...args: any[]) => Packet){
 /** Gets the name of the packet that the packet ID maps to. */
 export function namePacket(packetID:number):string;
 /** Gets the name of a packet contructor. */
-export function namePacket(packet:(new (...args: any[]) => Packet)):string;
+export function namePacket(packet:(new () => Packet)):string;
 /** Gets the name of a packet instance. */
 export function namePacket(packet:Packet):string;
 export function namePacket(packet:undefined):`Unknown Packet`;
-export function namePacket(packet:number|(new (...args: any[]) => Packet)|Packet|undefined):string{
+export function namePacket(packet:number|(new () => Packet)|Packet|undefined):string{
     if (typeof packet === 'number'){
         const p = Packets.get(packet);
         return namePacket(p!); // Force TypeScript to let this through as both states are valid.
@@ -320,7 +323,7 @@ registerPacket(AdminRequestCallPacket);
 class AnnounceCallPacket extends Packet {
     _id = 7;
     _lastUpdatedFor = 159;
-    message?:string|null;
+    message?:nullableString;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.message!);
     }
@@ -382,7 +385,7 @@ class BeginBreakCallPacket extends Packet {
     _id = 11;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.contruction;
-    unit?:[byte, int];
+    unit?:NetUnit;
     team?:any;
     x?:int;
     y?:int;
@@ -405,7 +408,7 @@ class BeginPlaceCallPacket extends Packet {
     _id = 12;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.contruction;
-    unit?:[byte, int];
+    unit?:NetUnit;
     result?:nullableString;
     team?:byte;
     x?:int;
@@ -462,7 +465,7 @@ registerPacket(BlockSnapshotCallPacket);
 class BuildDestroyedCallPacket extends Packet {
     _id = 14;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
     }
@@ -492,7 +495,7 @@ class BuildingControlSelectCallPacket extends Packet {
     _id = 16;
     _lastUpdatedFor = 159;
     player?:int;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeEntity(buf,this.player!);
         TypeIO.writeBuilding(buf,this.build!);
@@ -507,7 +510,7 @@ registerPacket(BuildingControlSelectCallPacket);
 class ClearItemsCallPacket extends Packet {
     _id = 17;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
     }
@@ -520,7 +523,7 @@ registerPacket(ClearItemsCallPacket);
 class ClearLiquidsCallPacket extends Packet {
     _id = 18;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
     }
@@ -718,7 +721,7 @@ class CommandBuildingCallPacket extends Packet {
     _lastUpdatedFor = 159;
     player?:int;
     buildings?:int[];
-    target?:{x:float,y:float};
+    target?:Vec;
     write(buf: DataStream): void {
         TypeIO.writeInts(buf,this.buildings!);
         TypeIO.writeVec2(buf,this.target!);
@@ -737,9 +740,9 @@ class CommandUnitsCallPacket extends Packet {
     _hidden = config.hideGroup.units;
     player?:int;
     unitIds?:int[];
-    buildTarget?:{x:short,y:short};
-    unitTarget?:[byte, int];
-    posTarget?:{x:float,y:float};
+    buildTarget?:BuildPos;
+    unitTarget?:NetUnit;
+    posTarget?:Vec;
     queueCommand?:boolean;
     finalBatch?:boolean;
     write(buf:DataStream) {
@@ -758,6 +761,15 @@ class CommandUnitsCallPacket extends Packet {
         this.posTarget = TypeIO.readVec2(buf);
         this.queueCommand = buf.getBoolean();
         this.finalBatch = buf.getBoolean();
+    }
+    handleClient(nc: NetClient): void {
+        if (!nc.units) return;
+        say(`[CommandUnitsCallPacket] Player [blue]${this.player}[] controlled [acid][italic]${this.unitIds?.length}[italic][] unit(s).`);
+        for (let unid of this.unitIds!){
+            const unit = nc.units[unid];
+            if (!unit) continue;
+            unit.lastControlledBy = this.player!;
+        }
     }
 }
 registerPacket(CommandUnitsCallPacket);
@@ -811,7 +823,7 @@ class ConstructFinishCallPacket extends Packet {
     _hidden = config.hideGroup.contruction;
     tile?:Tile;
     block?:nullableString;
-    builder?:[byte, int];
+    builder?:NetUnit;
     rotation?:byte;
     team?:byte;
     config?:ReturnType<typeof TypeIO.readObject>;
@@ -837,7 +849,7 @@ registerPacket(ConstructFinishCallPacket);
 class CopyToClipboardCallPacket extends Packet {
     _id = 35;
     _lastUpdatedFor = 159;
-    text?:string|null;
+    text?:nullableString;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.text!);
     }
@@ -956,7 +968,7 @@ class DeconstructFinishCallPacket extends Packet {
     _hidden = config.hideGroup.contruction;
     tile?:Tile;
     block?:nullableString;
-    builder?:[byte, int];
+    builder?:NetUnit;
     write(buf: DataStream): void {
         TypeIO.writeTile(buf,this.tile!);
         TypeIO.writeBlock(buf,this.block!);
@@ -989,7 +1001,7 @@ registerPacket(DeletePlansCallPacket);
 class DestroyPayloadCallPacket extends Packet {
     _id = 43;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
     }
@@ -1104,7 +1116,7 @@ registerPacket(HideHudTextCallPacket);
 class InfoMessageCallPacket extends Packet {
     _id = 54;
     _lastUpdatedFor = 159;
-    message?:string|null;
+    message?:nullableString;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.message!);
     }
@@ -1281,7 +1293,7 @@ registerPacket(InfoToastCallPacket);
 class KickCallPacket extends Packet {
     _id = 60;
     _lastUpdatedFor = 159;
-    reason?:string|null;
+    reason?:nullableString;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.reason!);
     }
@@ -1369,7 +1381,7 @@ registerPacket(LogicExplosionCallPacket);
 class OpenURICallPacket extends Packet {
     _id = 72;
     _lastUpdatedFor = 159;
-    uri?:string|null;
+    uri?:nullableString;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.uri!);
     }
@@ -1385,7 +1397,7 @@ registerPacket(OpenURICallPacket);
 class PayloadDroppedCallPacket extends Packet {
     _id = 73;
     _lastUpdatedFor = 159;
-    unit?:[byte, int];
+    unit?:NetUnit;
     x?:float;
     y?:float;
     write(buf: DataStream): void {
@@ -1404,8 +1416,8 @@ registerPacket(PayloadDroppedCallPacket);
 class PickedBuildPayloadCallPacket extends Packet {
     _id = 74;
     _lastUpdatedFor = 159;
-    unit?:[byte, int];
-    build?:{x:short,y:short};
+    unit?:NetUnit;
+    build?:BuildPos;
     onGround?:boolean;
     write(buf: DataStream): void {
         TypeIO.writeUnit(buf,this.unit!);
@@ -1423,8 +1435,8 @@ registerPacket(PickedBuildPayloadCallPacket);
 class PickedUnitPayloadCallPacket extends Packet {
     _id = 75;
     _lastUpdatedFor = 159;
-    unit?:[byte, int];
-    target?:[byte, int];
+    unit?:NetUnit;
+    target?:NetUnit;
     write(buf: DataStream): void {
         TypeIO.writeUnit(buf,this.unit!);
         TypeIO.writeUnit(buf,this.target!);
@@ -1579,7 +1591,7 @@ registerPacket(RequestAssetsCallPacket);
 class RequestBuildPayloadCallPacket extends Packet {
     _id = 88;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     player?:int;
     write(buf:DataStream) {
         TypeIO.writeBuilding(buf,this.build!);
@@ -1625,7 +1637,7 @@ class RequestItemCallPacket extends Packet {
     _id = 91;
     _lastUpdatedFor = 159;
     player?:int;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     item?:nullableString;
     amount?:int;
     write(buf:DataStream) {
@@ -1652,7 +1664,7 @@ class RequestUnitPayloadCallPacket extends Packet {
     _id = 92;
     _lastUpdatedFor = 159;
     player?:int;
-    target?:[byte, int];
+    target?:NetUnit;
     write(buf: DataStream): void {
         TypeIO.writeEntity(buf,this.player!);
         TypeIO.writeUnit(buf,this.target!);
@@ -1675,7 +1687,7 @@ class RotateBlockCallPacket extends Packet {
     _id = 95;
     _lastUpdatedFor = 159;
     player?:number;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     direction?:byte;
     write(buf:DataStream) {
         TypeIO.writeBuilding(buf,this.build!);
@@ -1737,7 +1749,7 @@ class SendMessageCallPacket extends Packet {
     }
     handleClient(n:NetClient) {
         //n.sendMessage(this.message);
-        say(`Message from [italic][red]the server[][]: [white]${this.message}`);
+        say(`Message from [bold][red]the server[][bold]: [white]${this.message}`);
     }
 }
 registerPacket(SendMessageCallPacket);
@@ -1773,7 +1785,7 @@ class SetFlagCallPacket extends Packet {
     _id = 105;
     _lastUpdatedFor = 159;
     _silent = true;
-    flag?:string|null;
+    flag?:nullableString;
     add?:boolean;
     write(buf: DataStream): void {
         TypeIO.writeString(buf,this.flag!);
@@ -1808,8 +1820,8 @@ registerPacket(SetFloorCallPacket);
 class SetItemsCallPacket extends Packet {
     _id = 110;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
-    items?:[short, int][];
+    build?:BuildPos;
+    items?:[nullableString, int][];
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
         TypeIO.writeItemStacks(buf,this.items!);
@@ -1882,6 +1894,9 @@ class SetPositionCallPacket extends Packet {
             x:this.x!,
             y:this.y!
         }
+        if (!nc.units) return;
+        nc.units[nc.player.id]!.position!.x = this.x!;
+        nc.units[nc.player.id]!.position!.y = this.x!;
     }
 }
 registerPacket(SetPositionCallPacket);
@@ -1910,7 +1925,7 @@ registerPacket(SetRulesCallPacket);
 class SetTeamCallPacket extends Packet {
     _id = 120;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     team?:any;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
@@ -1983,11 +1998,44 @@ class SetUnitStanceCallPacket extends Packet {
         this.stance = TypeIO.readStance(buf)!;
         this.enable = buf.getBoolean();
     }
+    handleClient(nc: NetClient): void {
+        if (!nc.units) return;
+        say(`[SetUnitStanceCallPacket] Player [blue]${this.player}[] set [acid][italic]${this.unitIds?.length}[italic][] unit(s)' stance to [acid]${this.stance}[].`);
+        for (let unid of this.unitIds!){
+            const unit = nc.units[unid];
+            if (!unit) continue;
+            unit.stance = this.stance!;
+            unit.lastControlledBy = this.player!;
+        }
+    }
 }
 registerPacket(SetUnitStanceCallPacket);
 
 class SetUnitCommandCallPacket extends Packet {
     _id = 128;
+    _lastUpdatedFor = 159;
+    player?:int;
+    unitIds?:int[];
+    command?:nullableByte;
+    write(buf: DataStream): void {
+        TypeIO.writeInts(buf,this.unitIds!);
+        TypeIO.writeCommand(buf,this.command!);
+    }
+    read(buf: DataStream): void {
+        this.player = TypeIO.readEntity(buf);
+        this.unitIds = TypeIO.readInts(buf);
+        this.command = TypeIO.readCommand(buf);
+    }
+    handleClient(nc: NetClient): void {
+        if (!nc.units) return;
+        say(`[SetUnitCommandCallPacket] Player [blue]${this.player}[] set [acid][italic]${this.unitIds?.length}[italic][] unit(s)' command to [acid]${this.command}[].`);
+        for (let unid of this.unitIds!){
+            const unit = nc.units[unid];
+            if (!unit) continue;
+            unit.command = this.command!;
+            unit.lastControlledBy = this.player!;
+        }
+    }
 }
 registerPacket(SetUnitCommandCallPacket);
 
@@ -2031,6 +2079,7 @@ class StateSnapshotCallPacket extends Packet {
     getPriority() {
         return 0;
     }
+    // Do I even need this? I I'm 99.99% sure this is server side only.
     write(buf:DataStream) {
         buf.putFloat(this.waveTime!);
         buf.putInt(this.wave!);
@@ -2070,19 +2119,19 @@ registerPacket(SyncVariableCallPacket);
 class TakeItemsCallPacket extends Packet {
     _id = 135;
     _lastUpdatedFor = 159;
-    build?:{x:short,y:short};
-    item?:nullableShort;
+    build?:BuildPos;
+    item?:nullableString;
     amount?:int;
-    to?:[byte, int];
+    to?:NetUnit;
     write(buf:DataStream) {
         TypeIO.writeBuilding(buf,this.build!);
-        TypeIO.writeItemRaw(buf,this.item!);
+        TypeIO.writeItem(buf,this.item!);
         buf.putInt(this.amount!);
         TypeIO.writeUnit(buf,this.to!);
     }
     read(buf:DataStream) {
         this.build = TypeIO.readBuilding(buf);
-        this.item = TypeIO.readItemRaw(buf);
+        this.item = TypeIO.readItem(buf);
         this.amount = buf.getInt();
         this.to = TypeIO.readUnit(buf);
     }
@@ -2096,7 +2145,7 @@ class TileConfigCallPacket extends Packet {
     _id = 139;
     _lastUpdatedFor = 159;
     player?:int;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     value?:ReturnType<typeof TypeIO.readObject>;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
@@ -2133,7 +2182,7 @@ class TransferInventoryCallPacket extends Packet {
     _id = 142;
     _lastUpdatedFor = 159;
     player?:int;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf:DataStream) {
         TypeIO.writeBuilding(buf,this.build!);
     }
@@ -2153,15 +2202,15 @@ registerPacket(TransferInventoryCallPacket);
 class TransferItemToCallPacket extends Packet {
     _id = 144;
     _lastUpdatedFor = 159;
-    unit?:[byte, int];
-    item?:nullableShort;
+    unit?:NetUnit;
+    item?:nullableString;
     amount?:int;
     x?:float;
     y?:float;
-    build?:{x:short,y:short};
+    build?:BuildPos;
     write(buf:DataStream):void{
         TypeIO.writeUnit(buf,this.unit!);
-        TypeIO.writeItemRaw(buf,this.item!);
+        TypeIO.writeItem(buf,this.item!);
         buf.putInt(this.amount!);
         buf.putFloat(this.x!);
         buf.putFloat(this.y!);
@@ -2169,7 +2218,7 @@ class TransferItemToCallPacket extends Packet {
     }
     read(buf: DataStream): void {
         this.unit = TypeIO.readUnit(buf);
-        this.item = TypeIO.readItemRaw(buf);
+        this.item = TypeIO.readItem(buf);
         this.amount = buf.getInt();
         this.x = buf.getFloat();
         this.y = buf.getFloat();
@@ -2187,8 +2236,8 @@ registerPacket(UnitBlockSpawnCallPacket);
 class UnitBuildingControlSelectCallPacket extends Packet {
     _id = 147;
     _lastUpdatedFor = 159;
-    unit?:[byte, int];
-    build?:{x:short,y:short};
+    unit?:NetUnit;
+    build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeUnit(buf,this.unit!);
         TypeIO.writeBuilding(buf,this.build!);
@@ -2205,12 +2254,9 @@ class UnitClearCallPacket extends Packet {
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.units;
     player?:int;
-    write(buf:DataStream){}
+    write(){}
     read(buf:DataStream){
         this.player=TypeIO.readEntity(buf);
-    }
-    handleServer(n:any){
-        //InputHandler.unitClear(player)
     }
     handleClient(n:NetClient){
         //InputHandler.unitClear(player)
@@ -2254,9 +2300,10 @@ class UnitDeathCallPacket extends Packet {
         this.uid = buf.getInt()
     }
     handleClient(nc:NetClient) {
+        if (!nc.units) return;
         say(`[UnitDeathCallPacket] Deleting unit [italic]${formatValue(this.uid)}`);
-        if (!nc.units![this.uid!]){
-            warn(`Unit [italic]${formatValue(this.uid)} does not exist.`)
+        if (!nc.units[this.uid!]){
+            warn(`Unit [italic]${formatValue(this.uid)}[italic] does not exist.`)
         }else{
             delete nc.units![this.uid!];
         }
@@ -2268,7 +2315,7 @@ class UnitDespawnCallPacket extends Packet {
     _id = 152;
     _lastUpdatedFor = 159;
     _silent = config.hideGroup.units;
-    unit?:[byte, int];
+    unit?:NetUnit;
     write(buf: DataStream): void {
         TypeIO.writeUnit(buf,this.unit!);
     }
@@ -2278,7 +2325,7 @@ class UnitDespawnCallPacket extends Packet {
     handleClient(nc: NetClient): void {
         say(`[UnitDespawnCallPacket] Deleting unit [italic]${formatValue(this.unit![1])}`);
         if (!nc.units![this.unit![1]]){
-            warn(`Unit [italic]${formatValue(this.unit![1])} does not exist.`);
+            warn(`Unit [italic]${formatValue(this.unit![1])}[italic] does not exist.`);
         }else{
             delete nc.units![this.unit![1]];
         }
@@ -2346,7 +2393,7 @@ class WarningToastCallPacket extends Packet {
     _id = 163;
     _lastUpdatedFor = 159;
     unicode?:nullableInt;
-    text?:string|null;
+    text?:nullableString;
     write(buf: DataStream): void {
         buf.putInt(this.unicode!);
         TypeIO.writeString(buf,this.text!);

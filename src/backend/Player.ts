@@ -309,7 +309,7 @@ export class Player {
 		};
 		this.nc.game.world.each((x2, y2, tile:any) => {
 			if(tile[type] == target || tile[type] == Utils.getBlockByName(target)){
-				res.push({tile: tile, distance: dst(x, y, x2, y2)});
+				res.push({tile: tile as Tile, distance: dst(x, y, x2, y2)});
 			}
 		})
 		return res;
@@ -354,33 +354,17 @@ export class Player {
 		this.nc.send(p, true);
 	}
 	rotateBlock(x:short, y:short, dir:byte){
-		let dire = dir == 0 ? <byte>-1 : dir;
-		let pos = {x, y};
+		const dire = dir == 0 ? <byte>-1 : dir;
 
-		let p = new Packets.RotateBlockCallPacket();
-
-		p.build = pos;
-		p.direction = dire;
-
-		this.nc.send(p, false);
+		this.call.rotateBlock({x, y},dire);
 	}
 	transferItemsTo(x:short, y:short){
-		let pos = {x, y}
-
-		let p = new Packets.TransferInventoryCallPacket();
-
-		p.build = pos;
-
-		this.nc.send(p, true);
+		this.call.transferInventory({x,y});
 	}
 	pickupBlock(){
-		let build = {x: <short>Math.round(this.unit.position!.x / 8), y: <short>Math.round(this.unit.position!.y / 8)}
+		const build = {x: <short>Math.round(this.unit.position!.x / 8), y: <short>Math.round(this.unit.position!.y / 8)}
 
-		let p = new Packets.RequestBuildPayloadCallPacket();
-
-		p.build = build;
-
-		this.nc.send(p, true);
+		this.call.requestBuildPayload(build);
 	}
 	pickupUnit(unit?:int){
 		let un = (!unit ? [0, 0] : [2, unit]) as [byte, int];
@@ -408,6 +392,7 @@ export class Player {
 
 		this.nc.send(p, true);
 	}
+	/** @alias {@link Call.unitClear} */
 	respawn(){
 		this.call.unitClear();
 	}

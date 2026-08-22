@@ -1,6 +1,6 @@
 import type { Mindustry, NetClient } from "./client.js";
 import { packets as Packets } from "./Packets.js";
-import type { nullableString, float, short } from "./primitives.js";
+import type { nullableString, float, short, byte } from "./primitives.js";
 import { say } from "./textFormater.js";
 
 export class Call {
@@ -32,10 +32,25 @@ export class Call {
         this.send(packet, true);
     }
 
+    // ID 88
+    requestBuildPayload(build:{x:short,y:short}){
+        const p = new Packets.RequestBuildPayloadCallPacket();
+		p.build = build;
+		this.send(p, true);
+    }
+
     // ID 93
     requestWorld(){
         const packet = new Packets.RequestWorldCallPacket();
         this.send(packet, true);
+    }
+
+    // ID 95
+    rotateBlock(pos:{x:short,y:short},direction:byte){
+        const p = new Packets.RotateBlockCallPacket();
+        p.build = pos;
+        p.direction = direction;
+        this.send(p, false);
     }
 
     // ID 97
@@ -48,6 +63,13 @@ export class Call {
         const packet = new Packets.SendChatMessageCallPacket();
         packet.message = message;
         this.send(packet, true);
+    }
+
+    // ID 142
+    transferInventory(pos:{x:short,y:short}){
+        const p = new Packets.TransferInventoryCallPacket();
+		p.build = pos;
+		this.send(p, true);
     }
 
     // ID 149

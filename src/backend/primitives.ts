@@ -24,7 +24,9 @@ export const float = (n: number): float => n as float;
 export const short = (n: number): short => (n | 0) as short;
 export const byte  = (n: number): byte => (Math.max(Math.min(0,int(n)),255)) as byte;
 
+/** @deprecated Use `boolean` instead */
 export type  boolByte = byte & (0|1);
+/** @deprecated Use `boolean` instead */
 export const boolByte = (n:unknown): boolByte => {
     if (typeof n === 'number'){
         if (!Number.isInteger(n)) throw new TypeError(`'${n}' is not an intiger!`);
@@ -37,5 +39,7 @@ export const boolByte = (n:unknown): boolByte => {
         throw new TypeError(`Can't parse type '${typeof n}' into a boolByte.`);
     }
 };
+/** @deprecated Use `boolean` instead */
 export const byteTrue  = boolByte(true);
+/** @deprecated Use `boolean` instead */
 export const byteFalse = boolByte(false);
