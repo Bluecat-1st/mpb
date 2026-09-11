@@ -1,3 +1,7 @@
+## Note:
+Mindustry has updated to V160!
+But that also means I have a lot to fix before mpb is ready to go from V159 to V160... This will take a while.
+
 # `mpb`, a Mindustry bot.
 As of current writing, this repository acts as place to see how this works, however, most of the code does not (yet) do stuff (AKA, most of [Packets.ts](src/backend/Packets.ts)) or is very broken (Like movement), so if your trying to make something like this, ~~don't, use Java so you can use the source code, please~~ you can use this as a starting point, but I would try to redo some of the stuff as even I'm still having issues figuring out how this works.
 
