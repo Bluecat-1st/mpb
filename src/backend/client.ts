@@ -15,11 +15,12 @@ import { inflate } from "pako";
 import { Call } from "./Call.js";
 import { World } from "./World.js";
 import { Utils } from "./Utills.js";
-import { formatText, say, throwError, warn } from './textFormater.js';
-import { byte, type nullableString, type float, type int, type long, type short } from "./primitives.js";
+import { cleanFormatedText, formatText, say, throwError, warn } from './textFormater.js';
+import { byte, type nullableString, type float, type int, type long, type short, type double } from "./primitives.js";
 import { Logger } from "./logger.js";
 import { DataAssetCache } from "./DataAssetType.js";
 import { config } from "./botConfig.js";
+import { userInfo } from "node:os";
 
 /** There are *some* use cases where having this as an export can be usefull. */
 export enum contentTypes  {
@@ -30,6 +31,20 @@ export enum contentTypes  {
 };
 
 export interface Unit {
+    viewX?:float;
+    viewY?:float;
+    viewWidth?:float;
+    viewHeight?:float;
+    revis?:short;
+    command?:byte;
+    stance?:byte;
+    lastControlledBy?:int;
+    [x:string]:any;
+    /** @deprecated Should be wrapped in {@link Unit.position} */
+    x?:never;
+    /** @deprecated Should be wrapped in {@link Unit.position} */
+    y?:never;
+    // Known from UnitIO
     position?:{
         x:float;
         y:float;
@@ -38,22 +53,44 @@ export interface Unit {
         x:float;
         y:float;
     }
-    utype?:number;
-    unit?:int;
-    plans?:Plan[];
+    aimX?:float;
+    aimY?:float;
+    admin?:boolean;
+    boosting?:boolean;
+    color?:{r:number,g:number,b:number,a:number};
     name?:string;
-    viewX?:float;
-    viewY?:float;
-    viewWidth?:float;
-    viewHeight?:float;
-    type?:byte;
-    revis?:short;
     selectedBlock?:nullableString;
-    miningpos?:{x:number,y:number};
-    command?:byte;
-    stance?:byte;
-    lastControlledBy?:int;
-    [x:string]:any;
+    selectedRotation?:int;
+    shooting?:boolean;
+    typeing?:boolean;
+    unit?:int;
+    typeID?:byte;
+    abilities?:float[];
+    controller?:ReturnType<typeof TypeIO.readController>;
+    elevation?:float;
+    flag?:double;
+    health?:float;
+    mineTile?:{x:number,y:number};
+    mounts?:ReturnType<typeof TypeIO.readMounts>;
+    plans?:Plan[];
+    rotation?:float;
+    shield?:float;
+    spawnedByCore?:boolean;
+    stack?:[nullableString, int];
+    statuses?:[short, float][];
+    team?:ReturnType<typeof TypeIO.readTeam>;
+    type?:nullableString;
+    updateBuilding?:boolean;
+    amount?:float;
+    liquid?:nullableString;
+    tile?:{x:number,y:number};
+    effectTimer?:float;
+    intensity?:float;
+    life?:float;
+    opacity?:float;
+    weather?:nullableString;
+    windVector?:{x:float,y:float};
+
 }
 
 export class Client {
@@ -162,6 +199,7 @@ export class Mindustry {
         this.call = new Call(this);
         this.events = new Events();
         this.utils = new Utils(this);
+        UnitIO.setup(this.utils);
         TypeIO.setup(this);
     }
     createClient() {
@@ -262,10 +300,29 @@ export class NetClient extends EventEmitter {
     }
     /** Send data to a server */
     send(packet:Parameters<Client['sendTCP']>[0], reliabale:boolean) {
-        if (reliabale) {
-            this.#client.sendTCP(packet);
-        } else {
-            this.#client.sendUDP(packet);
+        try{
+            if (reliabale) {
+                this.#client.sendTCP(packet);
+            } else {
+                this.#client.sendUDP(packet);
+            }
+        }catch(err){
+            if (!(packet instanceof Packets.Packet)){
+                this.game.call.sendChatMessage(`[#f00]Error sending packet: ${err}[#f00]!`);
+                this.reset();
+                throw err;
+            }
+            if (err instanceof Error) {
+                let e = cleanFormatedText(err.message);
+                e = e.replaceAll(userInfo().username,'<host>');
+                this.game.call.sendChatMessage(`[#f00]Error sending packet [acid]${namePacket(packet)}[]: ${e}[#f00]!`);
+                this.reset();
+                throwError(err.stack ?? err.message);
+            } else {
+                this.game.call.sendChatMessage(`[#f00]Unknown error sending packet [acid]${namePacket(packet)}[]!`)
+                this.reset();
+                throw err;
+            }
         }
     }
     reset() {
@@ -413,7 +470,7 @@ export class NetClient extends EventEmitter {
         const mapped = buf.get();
         const cmap:typeof global.contentMap = {}
         for (let i = 0; i < mapped; i++) {
-            const type = buf.get();
+            const type = buf.get() as contentTypes;
             const total = buf.getShort();
             if (!contentTypes[type]){
                 throwError(`Unknown content type: [acid]${type}[]`);
@@ -421,11 +478,11 @@ export class NetClient extends EventEmitter {
             if (contentTypes[type].includes(`_UNUSED`)){
                 warn(`Unexpected content type ${contentTypes[type]}`);
             }
-            say(`Loading content type: ${contentTypes[type]}`);
+            say(`[acid]Loading content type: ${contentTypes[type]}`);
             cmap[contentTypes[type] as keyof typeof contentTypes] = [];
             for (let j = 0; j < total; j++) {
                 const str = buf.readString();
-                //say(str);
+                say(`[orange]${j.toString().padStart(total.toString().length)}[]: [yellow]${str}`);
                 cmap[contentTypes[type] as keyof typeof contentTypes]!.push(str);
             }
         }

@@ -1300,8 +1300,9 @@ class KickCallPacket extends Packet {
     read(buf: DataStream): void {
         this.reason = TypeIO.readString(buf);
     }
-    handleClient(_: NetClient): void {
+    handleClient(nc: NetClient): void {
         warn(`Kick because: ${formatValue(this.reason)}.`);
+        nc.attempedReconnect = true; // Don't try to reconnect.
     }
 }
 registerPacket(KickCallPacket);
@@ -1314,15 +1315,16 @@ class KickCallPacket2 extends Packet {
         const i = buf.get();
         const r = KickReason[i];
         if (!r){
-            throwError(`Unknown kick reason: [acid][italic]${i}[][].`);
+            throwError(`Unknown kick reason: [acid][italic]${i}[].`);
         }
         this.reason = i;
     }
     write(buf: DataStream): void {
         buf.put(this.reason! as byte);
     }
-    handleClient(_: NetClient): void {
-        say(`Kicked because [acid][italic]${KickReason[this.reason!]}[][].`);
+    handleClient(nc: NetClient): void {
+        say(`Kicked because [acid][italic]${KickReason[this.reason!]}[].`);
+        nc.attempedReconnect = true; // Don't try to reconnect.
     }
 }
 registerPacket(KickCallPacket2);
@@ -1749,7 +1751,7 @@ class SendMessageCallPacket extends Packet {
     }
     handleClient(n:NetClient) {
         //n.sendMessage(this.message);
-        say(`Message from [bold][red]the server[][bold]: [white]${this.message}`);
+        say(`Message from [bold][red]the server[]: [white]${this.message}`);
     }
 }
 registerPacket(SendMessageCallPacket);

@@ -1,6 +1,5 @@
 import type { float, int, nullableShort, nullableString, short } from "./primitives.js";
 import type { contentTypes, Mindustry } from "./client.js";
-import { namePacket, packets as Packets } from './Packets.js';
 import { say, throwError, warn } from "./textFormater.js";
 
 export class Utils{
@@ -94,7 +93,7 @@ export class Utils{
 	static getUnitByName(unit:string){
 		return Utils.getContentID('unit',unit);
 	}
-	static chatMsgFromSelf(packet:InstanceType<typeof Packets.SendMessageCallPacket2>,self:Mindustry):boolean{
+	static chatMsgFromSelf(packet:{playersender?:number},self:Mindustry):boolean{
 		if (!self.netClient?.player?.id){
 			warn('The bot does not have an player ID!');
 			return false;
@@ -136,9 +135,6 @@ export function formatValue(v:unknown):string{
 			if (v === null){
 				return `[orange]Null[]`;
 			}else{
-				if (v instanceof Packets.Packet){
-					return `[acid][italic]${namePacket(v)}[italic][]`;
-				}
 				if ('toString' in v){
 					return `[blue]Object: ${v.toString()}[]`;
 				}

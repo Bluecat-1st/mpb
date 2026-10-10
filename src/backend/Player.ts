@@ -212,24 +212,24 @@ export class Player {
 		let p = new Packets.ClientSnapshotCallPacket();
 		p.snapshotID = this.snapid++ as int;
 		p.unitID = this.unit.unit!;
-		p.dead = this.unit.health > 0;
+		p.dead = this.unit.health! > 0;
 		p.x = (this.unit.position?.x??0) as float;
 		p.y = (this.unit.position?.y??0) as float;
 		//say(`Sending pos ${p.x},${p.y}`);
 		p.pointerX = this.unit.px;
 		p.pointerY = this.unit.py;
-		p.rotation = this.unit.rotation;
+		p.rotation = this.unit.rotation!;
 		p.baseRotation = this.unit.baserot;
 		p.xVelocity = this.unit.vel!.x;
 		p.yVelocity = this.unit.vel!.y;
-		p.mining = this.unit.miningpos as Tile; // I don't really care right now...
+		p.mining = this.unit.mineTile as Tile; // I don't really care right now...
 		p.boosting = this.unit.boost;
 		p.shooting = this.unit.shoot;
 		p.chatting = this.unit.chat;
 		p.building = this.unit.build;
 
 		p.selectedBlock = this.unit.selectedBlock!;
-		p.selectedRotation = this.unit.selectedRotation;
+		p.selectedRotation = this.unit.selectedRotation!;
 
 		p.plans = this.unit.plans!;
 		p.viewX = this.unit.viewX!;
@@ -395,6 +395,13 @@ export class Player {
 	/** @alias {@link Call.unitClear} */
 	respawn(){
 		this.call.unitClear();
+	}
+	controlBuild(x:short,y:short){
+		this.call.sendChatMessage(`[#ff0]Player.controlBuild is not a allowed function to run.`)
+		const packet = new Packets.UnitBuildingControlSelectCallPacket();
+		packet.unit = [<byte>2, <int>this.id]
+		packet.build = {x,y};
+		//this.nc.send(packet, true);
 	}
 	stop(){
 		clearInterval(this.interval);

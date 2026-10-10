@@ -1,26 +1,35 @@
 import { DataStream } from "./DataStream.js";
 import { TypeIO } from "./TypeIO.js";
-import { formatValue, readObjectFancy } from "./Utills.js";
+import { formatValue, readObjectFancy, Utils } from "./Utills.js";
 import type { Unit } from "./client.js";
+// mindustry.gen.EntityMapping.java
 import unitTypes from './json/UnitTypes.json' with {type:'json'};
-import type { byte, short, uint } from "./primitives.js";
+import type { byte, short } from "./primitives.js";
 import { say, throwError } from "./textFormater.js";
 
 export class UnitIO {
+	static utils:Utils;
+	static setup(utils:Utils){
+		this.utils = utils;
+	}
     static read(buf:DataStream, type:byte, rev?:boolean):Unit{
+		//say(`[UnitIO.read] Unit type [acid][italic]${type}[]`);
 		let revis;
 		if(rev){
 			revis = buf.getShort();
 		}
 		const utype = (unitTypes as Record<string,string>)[type];
 		if (!utype) throwError(`Unknown unit type [acid]${type}[]!`);
-		let unit:Unit = this.readMain(buf, utype);
+		if (utype.startsWith(`NOPARSE_`)) throwError(`Unallowed entity to parse [italic][acid]${utype.slice(`NOPARSE_`.length)}[]!`);
+		//const unit:Unit = this.readMain_old(buf, utype);
+		const unit:Unit = this.readMain(buf, utype);
 		unit.revis = revis!;
-		unit.type = type;
+		unit.typeID = type;
 		return unit;
 	}
-	static readMain(buf:DataStream, t:string){
-		say(`[UnitIO.readMain] Unit type [italic][acid]${t}[][italic]`);
+	/** @deprecated Switching to a new version that is easier to maintain. */
+	static readMain_old(buf:DataStream, t:string){
+		say(`[UnitIO.readMain_old] Unit type [italic][acid]${t}[]`);
 		if (t == "MechUnit" || t == "CrawlUnit" || t == "ElevationMoveUnit" || t == "TankUnit" || t == "UnitEntity" || t == "BlockUnitUnit" || t == "UnitWaterMove" || t == "LegsUnit" || t == "TimedKillUnit" || t == "PayloadUnit" || t == "BuildingTetherPayloadUnit") {
 		    let abils = TypeIO.readAbilities(buf);
 		    
@@ -209,10 +218,358 @@ export class UnitIO {
 			return {}
 		}
 	}
+	// mindustry.gen.`${type}.java`.readSync
+	static readMain(buf:DataStream, type:string):Unit{
+		//say(`[UnitIO.readMain] Reading type [acid]${type}[].`);
+		switch(type){
+			case `BlockUnitUnit`:{
+
+				break;
+			}
+			case `CrawlUnit`:{
+
+				break;
+			}
+			case `ElevationMoveUnit`:{
+
+				break;
+			}
+			case `Fire`:{
+
+				break;
+			}
+			case `LegsUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack,statuses, team, type,
+					updateBuilding, vel, position:{x,y}
+				}
+				return result;
+			}
+			case `MechUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const baseRotation = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, baseRotation, controller,
+					elevation, flag, health, shooting, mineTile, mounts,
+					plans, rotation, shield, spawnedByCore, stack,statuses,
+					team, type, updateBuilding, vel, position:{x,y}
+				}
+				return result;
+			}
+			case `PayloadUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const payloadsLen = buf.getInt();
+				const payloads:ReturnType<typeof TypeIO.readPayload>[] = [];
+				for (let i=0;i<payloadsLen;i++){
+					const payload = TypeIO.readPayload(buf);
+					if (!payload) continue;
+					payloads.push(payload);
+				}
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, payloads, plans, 
+					rotation, shield, spawnedByCore, stack, statuses,
+					team, type, updateBuilding, vel, position:{x,y}
+				};
+				return result;
+			}
+			case `Player`:{
+				const admin = buf.getBoolean();
+				const boosting = buf.getBoolean();
+				const color = TypeIO.readColor(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const name = TypeIO.readString(buf);
+				if (!name) throwError(`Name should not be [orange]null[]! Something is very wrong!`);
+				const selectedBlock = TypeIO.readBlock(buf);
+				const selectedRotation = buf.getInt();
+				const shooting = buf.getBoolean();
+				const team = TypeIO.readTeam(buf);
+				const typeing = buf.getBoolean();
+				const unit = TypeIO.readUnit(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					admin, boosting, color, aimX, aimY, name, selectedBlock,
+					selectedRotation, shooting, team, typeing, unit:unit[1],
+					typeID:unit[0], position:{x,y}
+				}
+				return result;
+			}
+			case `Puddle`:{
+				const amount = buf.getFloat();
+				const liquid = this.utils.getContentByID('liquid',buf.getShort());
+				const tile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					amount, liquid, tile, position:{x,y}
+				};
+				return result;
+			}
+			case `TankUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack, statuses, team, type,
+					updateBuilding, vel, position:{x,y}
+				};
+				return result;
+			}
+			case `TimedKillUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const lifetime = buf.getFloat();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const time = buf.getFloat();
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, lifetime, mineTile, mounts, plans,
+					rotation, shield, spawnedByCore, stack, statuses,
+					team, time, type, updateBuilding, vel, position:{x,y}
+				}
+				return result;
+			}
+			case `UnitEntity`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack, team, type, updateBuilding,
+					vel, position:{x,y}
+				}
+				return result;
+			}
+			case `UnitWaterMove`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack, team, type, updateBuilding,
+					vel, position:{x,y}
+				}
+				return result;
+			}
+			case `WeatherState`:{
+				const effectTimer = buf.getFloat();
+				const intensity = buf.getFloat();
+				const life = buf.getFloat();
+				const opacity = buf.getFloat();
+				const weather = this.utils.getContentByID('weather',buf.getShort());
+				const windVector = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					effectTimer, intensity, life, opacity, weather,
+					windVector, position:{x,y}
+				};
+				return result;
+			}
+			case `WorldLabel`:{
+
+				break;
+			}
+			default:{
+				throwError(`Unknown type ${formatValue(type)}!`);
+			}
+		}
+		throwError(`Unknown or unhandled type ${formatValue(type)}!`);
+	}
 	static write(buf:DataStream, unit:Unit, rev:boolean) {
 	    if (rev) {
 	    	if(unit.revis == undefined){
-	    		let rev = this.getRev(unit.type!.toString());
+	    		let rev = this.getRev(unit.typeID!.toString());
 	    		buf.putShort(rev!)
 	    	} else {
 	    		buf.putShort(unit.revis);

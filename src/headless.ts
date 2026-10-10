@@ -1,5 +1,5 @@
 import type { packets as Packets } from "./backend/Packets.js";
-import type { float } from "./backend/primitives.js";
+import type { float, short } from "./backend/primitives.js";
 import { throwError, say, warn } from "./backend/textFormater.js";
 import { readObjectFancy, Utils } from "./backend/Utills.js";
 import { pingHost } from "./backend/PingHost.js";
@@ -87,10 +87,28 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     client.netClient.player?.controller.moveTo(<float>x,<float>y,8,1);
                 }
             }
+        }else if (p.unformatted.trim().startsWith(`${config.commandPrefix} control `)) {
+            const args = p.unformatted!.slice(`${config.commandPrefix} control `.length).split(' ');
+            if (args.length !== 2) {
+                //warn(`Warning: Command moveto needed two numbers afterwards as arguments.`);
+                client.call.sendChatMessage(`[yellow]Warning: Command control needed two numbers afterwards as arguments.`);
+            } else {
+                if (!args[0] || !args[1]) return;
+                const x = parseInt(args[0]);
+                const y = parseInt(args[1]);
+                if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
+                    //warn(`Warning: Command moveto needs two VALID numbers afterwards as arguments.`);
+                    client.call.sendChatMessage(`[yellow]Warning: Command control needs two [red]VALID[] numbers afterwards as arguments.`);
+                } else {
+                    //say(`Moving to [yellow](${x},${y})`);
+                    client.call.sendChatMessage(`Controling [yellow](${x},${y})[].`);
+                    client.netClient.player?.controlBuild(x as short,y as short);
+                }
+            }
         }else if (p.unformatted === `${config.commandPrefix} info`) {
             let info = `MPB's status:\n`;
             if (client.netClient.player) {
-                info += `Pos:[yellow](${client.netClient.player.unit.position?.x},${client.netClient.player.unit.position?.y})[]`;
+                info += `Pos:[yellow](${client.netClient.player.unit.position!.x/8},${client.netClient.player.unit.position!.y/8})[]`;
             } else {
                 info += `Pos: [red]Error: No player unit[]`;
             }
@@ -100,13 +118,16 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
         }else if (p.unformatted === `${config.commandPrefix} units`) {
             console.log(Object.keys(client.netClient.units as object).join(', '));
             client.call.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
-        }else if (p.unformatted === `${config.commandPrefix} disconnect`) {
+        }else if (p.unformatted === `${config.commandPrefix} shutdown`) {
             client.call.sendChatMessage('Disconnecting...');
             say(`Disconnecting...`);
             client.netClient.reset();
         }else if (p.unformatted.startsWith(`${config.commandPrefix} say `)) {
             const arg = p.unformatted!.slice(`${config.commandPrefix} say `.length).trim();
-            warn(arg);
+            if (arg === `67`){
+                client.call.sendChatMessage(`[#f00]NO`);
+                return;
+            }
             const text = `(By [blue]${p.playersender ?? 'unknown sender'}[]) ${arg}`;
             client.call.sendChatMessage(text ?? `[red]Error`);
         }else if (p.unformatted === `${config.commandPrefix} respawn`){
@@ -206,9 +227,16 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             }else{
                 client.call.pingLocation(x,y);
             }
-            client.call.sendChatMessage(`Pinged location.`);
+            client.call.sendChatMessage(`Pinged location [yellow](${args[0]},${args[1]})[].`);
         }else if (p.unformatted === `${config.commandPrefix} rtv`){
             client.call.sendChatMessage(`/rtv`);
+        }else if (p.unformatted === `${config.commandPrefix} spin`){
+            client.netClient.player!.controller.spin = !client.netClient.player!.controller.spin;
+            if (client.netClient.player!.controller.spin){
+                client.call.sendChatMessage(`[acid]SSSSSSPPPPPPIIIIIINNNNNNNN!!!!!!!!!!`);
+            }else{
+                client.call.sendChatMessage(`Aww...`);
+            }
         }
     }, Math.floor(Math.random() * 1000));
 });

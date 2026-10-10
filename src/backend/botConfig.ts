@@ -9,7 +9,7 @@ export const config = {
     dontCompress:false,
     showAllPackets:false,
     hidePacketSends:false,
-    hidePacketReseives:false,
+    hidePacketReseives:true,
     getAssets:true,
     /** Some packets groups to hide */
     hideGroup:{
@@ -34,7 +34,7 @@ export const config = {
         * 162.248.101.53: Fish Sandbox (Public server)
 
         */
-        ip:"localhost",
+        ip:"162.248.101.53",
         port:6567
     },
     name:"mpb (Bot)",

@@ -232,6 +232,14 @@ export class TypeIO {
         }
         return out;
     }
+    static readColor(buf:DataStream){
+        const value = buf.getInt();
+        const r = ((value & 0xff000000) >>> 24);
+        const g = ((value & 0x00ff0000) >>> 16);
+        const b = ((value & 0x0000ff00) >>> 8);
+        const a = ((value & 0x000000ff));
+        return {r,g,b,a};
+    }
     // Ported
     static writeString(buf:DataStream, string:nullableString) {
         if (string) {

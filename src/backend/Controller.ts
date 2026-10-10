@@ -155,15 +155,15 @@ export class Controller{
 		this.player.unit.px = this.pointerX;
 		this.player.unit.py = this.pointerY;
 
-		if (this.spin){
-			this.player.unit.rotation += this.spinSpeed;
+		if (this.spin && this.rotation){
+			this.rotationDelta += this.spinSpeed;
 		}
-		this.player.unit.rotation = (this.player.unit.rotation + this.rotationDelta) % 360;
+		this.player.unit.rotation = ((this.player.unit.rotation! + this.rotationDelta) % 360) as float;
 		if (this.player.unit.rotation < 0) {
-		  	this.player.unit.rotation += 360;
+		  	this.player.unit.rotation = (360 + this.player.unit.rotation) as float;
 		}
 		if(this.rotation){
-			this.player.unit.rotation = this.rotation;
+			this.player.unit.rotation = this.rotation as float;
 			//this.rot = null;
 		}
 
@@ -183,7 +183,7 @@ export class Controller{
 		this.player.unit.vel.x = this.xVel;
 		this.player.unit.vel.y = this.yVel;
 
-		this.player.unit.miningpos = this.miningpos ?? {x:-1,y:-1};
+		this.player.unit.mineTile = this.miningpos ?? {x:-1,y:-1};
 
 		this.player.unit.boost = this.boost;
 		this.player.unit.shoot = this.shoot;
