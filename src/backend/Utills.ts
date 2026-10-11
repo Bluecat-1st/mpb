@@ -121,6 +121,15 @@ export class Utils{
 	toTilePos(x:float,y:float,p:number|null = null){
 		return Utils.toTilePos(x,y,p as any) as any;
 	}
+
+	/**
+	 * Remove Foo's client charaters.
+	 * 
+	 * ~~Stolen~~ borrowed from fish-commands.
+	 */
+	static removeFoosChars(text:string):string{
+		return text.replaceAll(/[\u0F80-\u107F]{2}$/,"");
+	}
 }
 
 export function formatValue(v:unknown):string{

@@ -91,11 +91,11 @@ export class PacketSerializer {
                 let e = cleanFormatedText(err.message);
                 e = e.replaceAll(userInfo().username,'<host>');
                 this.nc.game.call.sendChatMessage(`[#f00]Error parsing packet [acid]${namePacket(id)}[]: ${e}[#f00]!`);
-                this.nc.reset();
+                if (config.crashOnPacketReadError) this.nc.reset();
                 throwError(err.stack ?? err.message);
             } else {
                 this.nc.game.call.sendChatMessage(`[#f00]Unknown error parsing packet [acid]${namePacket(id)}[]!`)
-                this.nc.reset();
+                if (config.crashOnPacketReadError) this.nc.reset();
                 throw err;
             }
         }

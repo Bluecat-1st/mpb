@@ -5,10 +5,10 @@ import { readObjectFancy } from "./Utills.js";
 /** Some configeration, mostly for debugging. */
 export const config = {
     // DO NOT EDIT THE VERSION IF YOU DON'T KNOW WHAT YOU ARE DOING!
-    version:159,
+    version:160,
     dontCompress:false,
     showAllPackets:false,
-    hidePacketSends:false,
+    hidePacketSends:true,
     hidePacketReseives:true,
     getAssets:true,
     /** Some packets groups to hide */
@@ -26,15 +26,21 @@ export const config = {
     escapeMessageFormating:false,
     /** Some people for some reason send messages with gliphs at the end I can get rid of using normal JS methods, so this whitelist forces them out, however it is a a cost of not being able to use Mindustry's icons/emojis without having to manualy whitelist them.... */
     whitelistGliphFiltering:false,
+    /** 
+     * Whether to 'crash' when there is a error reading a packet.
+     * 
+     * Note: MPB *could* end up sending a lot of error messages to chat (Possible rate limiting issues) if a important packet errors out.
+     */
+    crashOnPacketReadError:false,
     server:{
         /*
         IPs:
-        * localhost:      The localhost server
-        * 127.0.0.1:      Just the IP version of localhost.
-        * 162.248.101.53: Fish Sandbox (Public server)
+        * localhost:6567        | The localhost server
+        * 127.0.0.1:6567        | Just the IP version of localhost.
+        * 51.81.48.124:6568 | Fish Sandbox (Public server)
 
         */
-        ip:"162.248.101.53",
+        ip:"localhost",
         port:6567
     },
     name:"mpb (Bot)",

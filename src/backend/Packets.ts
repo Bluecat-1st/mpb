@@ -101,7 +101,7 @@ function registerPacket(packet:new () => Packet){
     if (id === (new Packet())._id){
         throwError(`Packet [acid][italic]${namePacket(packet)}[][] does not have it's ID defined!`)
     }else if (Packets.get(id)){
-        throwError(`Can't register two packets of the same ID. (Old packet: [acid]${namePacket(id)}[] New packet: [acid]${namePacket(packet)}[])`);
+        throwError(`Can't register two packets of the same ID [acid]${id}[]. (Old packet: [acid]${namePacket(id)}[] New packet: [acid]${namePacket(packet)}[])`);
     }
     Packets.set(id,packet);
 }
@@ -128,7 +128,7 @@ export function namePacket(packet:number|(new () => Packet)|Packet|undefined):st
 class StreamBegin extends Packet {
     _id = 0;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     static #lastid = <int>0;
     /** The stream ID */
     id:int;
@@ -157,7 +157,7 @@ registerPacket(StreamBegin);
 export class StreamChunk extends Packet {
     _id = 1;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The stream ID */
     id?:int;
     /** The chunk's data */
@@ -187,7 +187,7 @@ registerPacket(WorldStream);
 
 class ConnectPacket extends Packet {
     _id = 3;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The bot's name */
     name?:string;
     usid?:string;
@@ -300,8 +300,13 @@ class AssetStream extends Packet {
 }
 registerPacket(AssetStream);
 
-class AdminRequestCallPacket extends Packet {
+class TextureStream extends Packet {
     _id = 6;
+}
+registerPacket(TextureStream);
+
+class AdminRequestCallPacket extends Packet {
+    _id = 7;
     _lastUpdatedFor = 159;
     other?:int;
     /** Don't write `null`, it is only for if the action is unknown */
@@ -321,7 +326,7 @@ class AdminRequestCallPacket extends Packet {
 registerPacket(AdminRequestCallPacket);
 
 class AnnounceCallPacket extends Packet {
-    _id = 7;
+    _id = 8;
     _lastUpdatedFor = 159;
     message?:nullableString;
     write(buf: DataStream): void {
@@ -337,7 +342,7 @@ class AnnounceCallPacket extends Packet {
 registerPacket(AnnounceCallPacket);
 
 class AssemblerDroneSpawnedCallPacket extends Packet {
-    _id = 8;
+    _id = 9;
     _lastUpdatedFor = 159;
     tile?:Tile;
     id?:int;
@@ -353,7 +358,7 @@ class AssemblerDroneSpawnedCallPacket extends Packet {
 registerPacket(AssemblerDroneSpawnedCallPacket);
 
 class AssemblerUnitSpawnedCallPacket extends Packet {
-    _id = 9;
+    _id = 10;
     _lastUpdatedFor = 159;
     tile?:Tile;
     write(buf: DataStream): void {
@@ -366,7 +371,7 @@ class AssemblerUnitSpawnedCallPacket extends Packet {
 registerPacket(AssemblerUnitSpawnedCallPacket);
 
 class AutoDoorToggleCallPacket extends Packet {
-    _id = 10;
+    _id = 11;
     _lastUpdatedFor = 159;
     tile?:Tile;
     open?:boolean;
@@ -382,8 +387,8 @@ class AutoDoorToggleCallPacket extends Packet {
 registerPacket(AutoDoorToggleCallPacket);
 
 class BeginBreakCallPacket extends Packet {
-    _id = 11;
-    _lastUpdatedFor = 159;
+    _id = 12;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.contruction;
     unit?:NetUnit;
     team?:any;
@@ -405,8 +410,8 @@ class BeginBreakCallPacket extends Packet {
 registerPacket(BeginBreakCallPacket);
 
 class BeginPlaceCallPacket extends Packet {
-    _id = 12;
-    _lastUpdatedFor = 159;
+    _id = 13;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.contruction;
     unit?:NetUnit;
     result?:nullableString;
@@ -440,9 +445,9 @@ class BeginPlaceCallPacket extends Packet {
 registerPacket(BeginPlaceCallPacket);
 
 class BlockSnapshotCallPacket extends Packet {
-    _id = 13;
+    _id = 14;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     amount?:short;
     data?:Buffer;
     getPriority() {
@@ -463,8 +468,8 @@ class BlockSnapshotCallPacket extends Packet {
 registerPacket(BlockSnapshotCallPacket);
 
 class BuildDestroyedCallPacket extends Packet {
-    _id = 14;
-    _lastUpdatedFor = 159;
+    _id = 15;
+    _lastUpdatedFor = 160;
     build?:BuildPos;
     write(buf: DataStream): void {
         TypeIO.writeBuilding(buf,this.build!);
@@ -476,7 +481,7 @@ class BuildDestroyedCallPacket extends Packet {
 registerPacket(BuildDestroyedCallPacket);
 
 class BuildHealthUpdateCallPacket extends Packet {
-    _id = 15;
+    _id = 16;
     _lastUpdatedFor = 159;
     buildings?:int[];
     write(buf:DataStream) {
@@ -492,7 +497,7 @@ class BuildHealthUpdateCallPacket extends Packet {
 registerPacket(BuildHealthUpdateCallPacket);
 
 class BuildingControlSelectCallPacket extends Packet {
-    _id = 16;
+    _id = 17;
     _lastUpdatedFor = 159;
     player?:int;
     build?:BuildPos;
@@ -508,7 +513,7 @@ class BuildingControlSelectCallPacket extends Packet {
 registerPacket(BuildingControlSelectCallPacket);
 
 class ClearItemsCallPacket extends Packet {
-    _id = 17;
+    _id = 18;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     write(buf: DataStream): void {
@@ -521,7 +526,7 @@ class ClearItemsCallPacket extends Packet {
 registerPacket(ClearItemsCallPacket);
 
 class ClearLiquidsCallPacket extends Packet {
-    _id = 18;
+    _id = 19;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     write(buf: DataStream): void {
@@ -534,7 +539,7 @@ class ClearLiquidsCallPacket extends Packet {
 registerPacket(ClearLiquidsCallPacket);
 
 class ClearObjectivesCallPacket extends Packet {
-    _id = 19;
+    _id = 20;
     _lastUpdatedFor = 159;
     write(): void {}
     read(): void {}
@@ -542,37 +547,37 @@ class ClearObjectivesCallPacket extends Packet {
 registerPacket(ClearObjectivesCallPacket);
 
 class ClientBinaryPacketReliableCallPacket extends Packet {
-    _id = 20;
+    _id = 21;
 }
 registerPacket(ClientBinaryPacketReliableCallPacket);
 
 class ClientBinaryPacketUnreliableCallPacket extends Packet {
-    _id = 21;
+    _id = 22;
 }
 registerPacket(ClientBinaryPacketUnreliableCallPacket);
 
 class ClientLogicDataReliableCallPacket extends Packet {
-    _id = 22;
+    _id = 23;
 }
 registerPacket(ClientLogicDataReliableCallPacket);
 
 class ClientLogicDataUnreliableCallPacket extends Packet {
-    _id = 23;
+    _id = 24;
 }
 registerPacket(ClientLogicDataUnreliableCallPacket);
 
 class ClientPacketReliableCallPacket extends Packet {
-    _id = 24;
+    _id = 25;
 }
 registerPacket(ClientPacketReliableCallPacket);
 
 class ClientPacketUnreliableCallPacket extends Packet {
-    _id = 25;
+    _id = 26;
 }
 registerPacket(ClientPacketUnreliableCallPacket);
 
 class ClientPlanSnapshotCallPacket extends Packet {
-    _id = 26;
+    _id = 27;
     _lastUpdatedFor = 159;
     groupId?:int;
     plans:any;
@@ -588,9 +593,9 @@ class ClientPlanSnapshotCallPacket extends Packet {
 registerPacket(ClientPlanSnapshotCallPacket);
 
 class ClientPlanSnapshotReceivedCallPacket extends Packet {
-    _id = 27;
+    _id = 28;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     player?:int;
     groupId?:int;
     plans?:ReturnType<typeof TypeIO.readPlans>;
@@ -611,9 +616,9 @@ class ClientPlanSnapshotReceivedCallPacket extends Packet {
 registerPacket(ClientPlanSnapshotReceivedCallPacket);
 
 class ClientSnapshotCallPacket extends Packet {
-    _id = 28;
+    _id = 29;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     snapshotID?:int;
     unitID?:int;
     /** If the player is dead */
@@ -717,7 +722,7 @@ class ClientSnapshotCallPacket extends Packet {
 registerPacket(ClientSnapshotCallPacket);
 
 class CommandBuildingCallPacket extends Packet {
-    _id = 29;
+    _id = 30;
     _lastUpdatedFor = 159;
     player?:int;
     buildings?:int[];
@@ -735,7 +740,7 @@ class CommandBuildingCallPacket extends Packet {
 registerPacket(CommandBuildingCallPacket);
 
 class CommandUnitsCallPacket extends Packet {
-    _id = 30;
+    _id = 31;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.units;
     player?:int;
@@ -775,7 +780,7 @@ class CommandUnitsCallPacket extends Packet {
 registerPacket(CommandUnitsCallPacket);
 
 class CompleteObjectiveCallPacket extends Packet {
-    _id = 31;
+    _id = 32;
     _lastUpdatedFor = 159;
     index?:int;
     write(buf: DataStream): void {
@@ -788,7 +793,7 @@ class CompleteObjectiveCallPacket extends Packet {
 registerPacket(CompleteObjectiveCallPacket);
 
 class ConnectCallPacket extends Packet {
-    _id = 32;
+    _id = 33;
     _lastUpdatedFor = 159;
     ip?:string;
     port?:int;
@@ -807,8 +812,8 @@ class ConnectCallPacket extends Packet {
 registerPacket(ConnectCallPacket);
 
 class ConnectConfirmCallPacket extends Packet {
-    _id = 33;
-    _lastUpdatedFor = 159;
+    _id = 34;
+    _lastUpdatedFor = 160;
     write(){}
     read(){}
     handleServer(n:NetClient){
@@ -818,8 +823,8 @@ class ConnectConfirmCallPacket extends Packet {
 registerPacket(ConnectConfirmCallPacket);
 
 class ConstructFinishCallPacket extends Packet {
-    _id = 34;
-    _lastUpdatedFor = 159;
+    _id = 35;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.contruction;
     tile?:Tile;
     block?:nullableString;
@@ -847,7 +852,7 @@ class ConstructFinishCallPacket extends Packet {
 registerPacket(ConstructFinishCallPacket);
 
 class CopyToClipboardCallPacket extends Packet {
-    _id = 35;
+    _id = 36;
     _lastUpdatedFor = 159;
     text?:nullableString;
     write(buf: DataStream): void {
@@ -863,7 +868,7 @@ class CopyToClipboardCallPacket extends Packet {
 registerPacket(CopyToClipboardCallPacket);
 
 class CreateBulletCallPacket extends Packet {
-    _id = 36;
+    _id = 37;
     _lastUpdatedFor = 159;
     /** Bullet Type */
     type?:short;
@@ -898,12 +903,12 @@ class CreateBulletCallPacket extends Packet {
 registerPacket(CreateBulletCallPacket);
 
 class CreateMarkerCallPacket extends Packet {
-    _id = 37;
+    _id = 38;
 }
 registerPacket(CreateMarkerCallPacket);
 
 class CreateWeatherCallPacket extends Packet {
-    _id = 38;
+    _id = 39;
     _lastUpdatedFor = 159;
     weather?:nullableString;
     intensity?:float;
@@ -931,7 +936,7 @@ class CreateWeatherCallPacket extends Packet {
 registerPacket(CreateWeatherCallPacket);
 
 class DebugStatusClientCallPacket extends Packet {
-    _id = 39;
+    _id = 40;
     _lastUpdatedFor = 159;
     value?:int;
     lastClientSnapshot?:int;
@@ -947,7 +952,7 @@ class DebugStatusClientCallPacket extends Packet {
 registerPacket(DebugStatusClientCallPacket);
 
 class DebugStatusClientUnreliableCallPacket extends Packet {
-    _id = 40;
+    _id = 41;
     _lastUpdatedFor = 159;
     value?:int;
     lastClientSnapshot?:int;
@@ -963,8 +968,8 @@ class DebugStatusClientUnreliableCallPacket extends Packet {
 registerPacket(DebugStatusClientUnreliableCallPacket);
 
 class DeconstructFinishCallPacket extends Packet {
-    _id = 41;
-    _lastUpdatedFor = 159;
+    _id = 42;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.contruction;
     tile?:Tile;
     block?:nullableString;
@@ -983,7 +988,7 @@ class DeconstructFinishCallPacket extends Packet {
 registerPacket(DeconstructFinishCallPacket);
 
 class DeletePlansCallPacket extends Packet {
-    _id = 42;
+    _id = 43;
     _lastUpdatedFor = 159;
     player?:int;
     positions?:int[];
@@ -999,7 +1004,7 @@ class DeletePlansCallPacket extends Packet {
 registerPacket(DeletePlansCallPacket);
 
 class DestroyPayloadCallPacket extends Packet {
-    _id = 43;
+    _id = 44;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     write(buf: DataStream): void {
@@ -1012,7 +1017,7 @@ class DestroyPayloadCallPacket extends Packet {
 registerPacket(DestroyPayloadCallPacket);
 
 class DropItemCallPacket extends Packet {
-    _id = 44;
+    _id = 45;
     _lastUpdatedFor = 159;
     angle?:float;
     write(buf:DataStream) {
@@ -1028,18 +1033,18 @@ class DropItemCallPacket extends Packet {
 registerPacket(DropItemCallPacket);
 
 class EffectCallPacket extends Packet {
-    _id = 45;
+    _id = 46;
     _silent = true;
 }
 registerPacket(EffectCallPacket);
 
 class EffectCallPacket2 extends Packet {
-    _id = 46;
+    _id = 47;
 }
 registerPacket(EffectCallPacket2);
 
 class EffectReliableCallPacket extends Packet {
-    _id = 47;
+    _id = 48;
     _lastUpdatedFor = 159;
     /** Unparsed type */
     effect?:ushort;
@@ -1067,9 +1072,9 @@ class EffectReliableCallPacket extends Packet {
 registerPacket(EffectReliableCallPacket);
 
 class EntitySnapshotCallPacket extends Packet {
-    _id = 48;
+    _id = 49;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     amount?:short;
     data?:Buffer;
     getPriority() {
@@ -1090,7 +1095,7 @@ class EntitySnapshotCallPacket extends Packet {
 registerPacket(EntitySnapshotCallPacket);
 
 class GameOverCallPacket extends Packet {
-    _id = 50;
+    _id = 54;
     _lastUpdatedFor = 159;
     winner?:byte;
     write(buf: DataStream): void {
@@ -1106,7 +1111,7 @@ class GameOverCallPacket extends Packet {
 registerPacket(GameOverCallPacket);
 
 class HideHudTextCallPacket extends Packet {
-    _id = 53;
+    _id = 57;
     _lastUpdatedFor = 159;
     read():void{}
     write():void{}
@@ -1114,7 +1119,7 @@ class HideHudTextCallPacket extends Packet {
 registerPacket(HideHudTextCallPacket);
 
 class InfoMessageCallPacket extends Packet {
-    _id = 54;
+    _id = 59;
     _lastUpdatedFor = 159;
     message?:nullableString;
     write(buf: DataStream): void {
@@ -1130,7 +1135,7 @@ class InfoMessageCallPacket extends Packet {
 registerPacket(InfoMessageCallPacket);
 
 class InfoPopupCallPacket extends Packet {
-    _id = 55;
+    _id = 60;
     _lastUpdatedFor = 159;
     message?:nullableString;
     duration?:float;
@@ -1164,7 +1169,7 @@ class InfoPopupCallPacket extends Packet {
 registerPacket(InfoPopupCallPacket);
 
 class InfoPopupCallPacket2 extends Packet {
-    _id = 56;
+    _id = 61;
     _lastUpdatedFor = 159;
     message?:nullableString;
     id?:nullableString;
@@ -1201,7 +1206,7 @@ class InfoPopupCallPacket2 extends Packet {
 registerPacket(InfoPopupCallPacket2);
 
 class InfoPopupReliableCallPacket extends Packet {
-    _id = 57;
+    _id = 62;
     _lastUpdatedFor = 159;
     message?:nullableString;
     duration?:float;
@@ -1235,7 +1240,7 @@ class InfoPopupReliableCallPacket extends Packet {
 registerPacket(InfoPopupReliableCallPacket);
 
 class InfoPopupReliableCallPacket2 extends Packet {
-    _id = 58;
+    _id = 63;
     _lastUpdatedFor = 159;
     message?:nullableString;
     id?:nullableString;
@@ -1272,7 +1277,7 @@ class InfoPopupReliableCallPacket2 extends Packet {
 registerPacket(InfoPopupReliableCallPacket2);
 
 class InfoToastCallPacket extends Packet {
-    _id = 59;
+    _id = 64;
     _lastUpdatedFor = 159;
     message?:nullableString;
     duration?:float;
@@ -1291,7 +1296,7 @@ class InfoToastCallPacket extends Packet {
 registerPacket(InfoToastCallPacket);
 
 class KickCallPacket extends Packet {
-    _id = 60;
+    _id = 65;
     _lastUpdatedFor = 159;
     reason?:nullableString;
     write(buf: DataStream): void {
@@ -1308,7 +1313,7 @@ class KickCallPacket extends Packet {
 registerPacket(KickCallPacket);
 
 class KickCallPacket2 extends Packet {
-    _id = 61;
+    _id = 66;
     _lastUpdatedFor = 159;
     reason?:KickReason
     read(buf: DataStream): void {
@@ -1330,7 +1335,7 @@ class KickCallPacket2 extends Packet {
 registerPacket(KickCallPacket2);
 
 class LandingPadLandedCallPacket extends Packet {
-    _id = 68;
+    _id = 73;
     _lastUpdatedFor = 159;
     tile?:Tile;
     write(buf: DataStream): void {
@@ -1343,7 +1348,7 @@ class LandingPadLandedCallPacket extends Packet {
 registerPacket(LandingPadLandedCallPacket);
 
 class LogicExplosionCallPacket extends Packet {
-    _id = 69;
+    _id = 74;
     _lastUpdatedFor = 159;
     _silent = true;
     team:any;
@@ -1381,7 +1386,7 @@ class LogicExplosionCallPacket extends Packet {
 registerPacket(LogicExplosionCallPacket);
 
 class OpenURICallPacket extends Packet {
-    _id = 72;
+    _id = 80;
     _lastUpdatedFor = 159;
     uri?:nullableString;
     write(buf: DataStream): void {
@@ -1397,7 +1402,7 @@ class OpenURICallPacket extends Packet {
 registerPacket(OpenURICallPacket);
 
 class PayloadDroppedCallPacket extends Packet {
-    _id = 73;
+    _id = 81;
     _lastUpdatedFor = 159;
     unit?:NetUnit;
     x?:float;
@@ -1416,7 +1421,7 @@ class PayloadDroppedCallPacket extends Packet {
 registerPacket(PayloadDroppedCallPacket);
 
 class PickedBuildPayloadCallPacket extends Packet {
-    _id = 74;
+    _id = 82;
     _lastUpdatedFor = 159;
     unit?:NetUnit;
     build?:BuildPos;
@@ -1435,7 +1440,7 @@ class PickedBuildPayloadCallPacket extends Packet {
 registerPacket(PickedBuildPayloadCallPacket);
 
 class PickedUnitPayloadCallPacket extends Packet {
-    _id = 75;
+    _id = 83;
     _lastUpdatedFor = 159;
     unit?:NetUnit;
     target?:NetUnit;
@@ -1451,8 +1456,8 @@ class PickedUnitPayloadCallPacket extends Packet {
 registerPacket(PickedUnitPayloadCallPacket);
 
 class PingCallPacket extends Packet {
-    _id = 76;
-    _lastUpdatedFor = 159;
+    _id = 84;
+    _lastUpdatedFor = 160;
     time?:long;
     player?:int;
     write(buf:DataStream) {
@@ -1467,10 +1472,10 @@ class PingCallPacket extends Packet {
 }
 registerPacket(PingCallPacket);
 
-/** ID 77 */
+/** ID 85 */
 class PingLocationCallPacket extends Packet {
-    _id = 77;
-    _lastUpdatedFor = 159;
+    _id = 85;
+    _lastUpdatedFor = 160;
     player?:int;
     x?:float;
     y?:float;
@@ -1494,8 +1499,8 @@ class PingLocationCallPacket extends Packet {
 registerPacket(PingLocationCallPacket);
 
 class PingResponseCallPacket extends Packet {
-    _id = 78;
-    _lastUpdatedFor = 159;
+    _id = 86;
+    _lastUpdatedFor = 160;
     /** The ping in ms */
     time?:long;
     write(buf:DataStream) {
@@ -1511,7 +1516,7 @@ class PingResponseCallPacket extends Packet {
 registerPacket(PingResponseCallPacket);
 
 class PlayMusicCallPacket extends Packet {
-    _id = 79;
+    _id = 87;
     _lastUpdatedFor = 159;
     musicName?:nullableString;
     interrupt?:boolean;
@@ -1530,7 +1535,7 @@ class PlayMusicCallPacket extends Packet {
 registerPacket(PlayMusicCallPacket);
 
 class PlayerDisconnectCallPacket extends Packet {
-    _id = 80;
+    _id = 88;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.units;
     playerid?:int;
@@ -1547,8 +1552,8 @@ class PlayerDisconnectCallPacket extends Packet {
 registerPacket(PlayerDisconnectCallPacket);
 
 class PlayerSpawnCallPacket extends Packet {
-    _id = 81;
-    _lastUpdatedFor = 159;
+    _id = 89;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     tile?:Point2;
     player?:int;
@@ -1578,7 +1583,7 @@ class PlayerSpawnCallPacket extends Packet {
 registerPacket(PlayerSpawnCallPacket);
 
 class RequestAssetsCallPacket extends Packet {
-    _id = 86;
+    _id = 94;
     _lastUpdatedFor = 159;
     ids?:short[];
     write(buf: DataStream): void {
@@ -1591,7 +1596,7 @@ class RequestAssetsCallPacket extends Packet {
 registerPacket(RequestAssetsCallPacket);
 
 class RequestBuildPayloadCallPacket extends Packet {
-    _id = 88;
+    _id = 96;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     player?:int;
@@ -1612,7 +1617,7 @@ class RequestBuildPayloadCallPacket extends Packet {
 registerPacket(RequestBuildPayloadCallPacket);
 
 class RequestDropPayloadCallPacket extends Packet {
-    _id = 90;
+    _id = 98;
     _lastUpdatedFor = 159;
     x?:float;
     y?:float;
@@ -1636,8 +1641,8 @@ class RequestDropPayloadCallPacket extends Packet {
 registerPacket(RequestDropPayloadCallPacket);
 
 class RequestItemCallPacket extends Packet {
-    _id = 91;
-    _lastUpdatedFor = 159;
+    _id = 99;
+    _lastUpdatedFor = 160;
     player?:int;
     build?:BuildPos;
     item?:nullableString;
@@ -1663,7 +1668,7 @@ class RequestItemCallPacket extends Packet {
 registerPacket(RequestItemCallPacket);
 
 class RequestUnitPayloadCallPacket extends Packet {
-    _id = 92;
+    _id = 100;
     _lastUpdatedFor = 159;
     player?:int;
     target?:NetUnit;
@@ -1679,14 +1684,14 @@ class RequestUnitPayloadCallPacket extends Packet {
 registerPacket(RequestUnitPayloadCallPacket);
 
 class RequestWorldCallPacket extends Packet {
-    _id = 93;
+    _id = 101;
     _lastUpdatedFor = 159;
     read(){};
 }
 registerPacket(RequestWorldCallPacket);
 
 class RotateBlockCallPacket extends Packet {
-    _id = 95;
+    _id = 103;
     _lastUpdatedFor = 159;
     player?:number;
     build?:BuildPos;
@@ -1710,7 +1715,7 @@ class RotateBlockCallPacket extends Packet {
 registerPacket(RotateBlockCallPacket);
 
 class SectorCaptureCallPacket extends Packet {
-    _id = 96;
+    _id = 104;
     _lastUpdatedFor = 159;
     read():void{}
     write():void{}
@@ -1721,9 +1726,9 @@ class SectorCaptureCallPacket extends Packet {
 registerPacket(SectorCaptureCallPacket);
 
 class SendChatMessageCallPacket extends Packet {
-    _id = 97;
+    _id = 105;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The chat message to send */
     message?:string;
     write(buf:DataStream) {
@@ -1738,9 +1743,9 @@ class SendChatMessageCallPacket extends Packet {
 }
 registerPacket(SendChatMessageCallPacket);
 class SendMessageCallPacket extends Packet {
-    _id = 98;
+    _id = 106;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The message from the server */
     message?:string;
     write(buf:DataStream) {
@@ -1756,9 +1761,9 @@ class SendMessageCallPacket extends Packet {
 }
 registerPacket(SendMessageCallPacket);
 class SendMessageCallPacket2 extends Packet {
-    _id = 99;
+    _id = 107;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The message from the player */
     message?:string;
     /** The message from the player */
@@ -1784,8 +1789,8 @@ class SendMessageCallPacket2 extends Packet {
 registerPacket(SendMessageCallPacket2);
 
 class SetFlagCallPacket extends Packet {
-    _id = 105;
-    _lastUpdatedFor = 159;
+    _id = 113;
+    _lastUpdatedFor = 160;
     _silent = true;
     flag?:nullableString;
     add?:boolean;
@@ -1801,7 +1806,7 @@ class SetFlagCallPacket extends Packet {
 registerPacket(SetFlagCallPacket);
 
 class SetFloorCallPacket extends Packet {
-    _id = 106;
+    _id = 114;
     _lastUpdatedFor = 159;
     tile?:Tile;
     floor?:nullableString;
@@ -1820,7 +1825,7 @@ class SetFloorCallPacket extends Packet {
 registerPacket(SetFloorCallPacket);
 
 class SetItemsCallPacket extends Packet {
-    _id = 110;
+    _id = 118;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     items?:[nullableString, int][];
@@ -1836,7 +1841,7 @@ class SetItemsCallPacket extends Packet {
 registerPacket(SetItemsCallPacket);
 
 class SetMapAreaCallPacket extends Packet {
-    _id = 113;
+    _id = 121;
     _lastUpdatedFor = 159;
     x?:int;
     y?:int;
@@ -1861,7 +1866,7 @@ class SetMapAreaCallPacket extends Packet {
 registerPacket(SetMapAreaCallPacket);
 
 class SetOverlayCallPacket extends Packet {
-    _id = 115;
+    _id = 123;
     _lastUpdatedFor = 159;
     tile?:Tile;
     overlay?:nullableString;
@@ -1877,7 +1882,7 @@ class SetOverlayCallPacket extends Packet {
 registerPacket(SetOverlayCallPacket);
 
 class SetPositionCallPacket extends Packet {
-    _id = 117;
+    _id = 125;
     _lastUpdatedFor = 159;
     x?:float;
     y?:float;
@@ -1904,7 +1909,7 @@ class SetPositionCallPacket extends Packet {
 registerPacket(SetPositionCallPacket);
 
 class SetRuleCallPacket extends Packet {
-    _id = 118;
+    _id = 126;
     _lastUpdatedFor = 159;
     rule?:string;
     jsonData?:string;
@@ -1920,12 +1925,12 @@ class SetRuleCallPacket extends Packet {
 registerPacket(SetRuleCallPacket);
 
 class SetRulesCallPacket extends Packet {
-    _id = 119;
+    _id = 127;
 }
 registerPacket(SetRulesCallPacket);
 
 class SetTeamCallPacket extends Packet {
-    _id = 120;
+    _id = 128;
     _lastUpdatedFor = 159;
     build?:BuildPos;
     team?:any;
@@ -1941,7 +1946,7 @@ class SetTeamCallPacket extends Packet {
 registerPacket(SetTeamCallPacket);
 
 class SetTeamsCallPacket extends Packet {
-    _id = 121;
+    _id = 129;
     _lastUpdatedFor = 159;
     positions?:int[];
     team?:any;
@@ -1957,8 +1962,8 @@ class SetTeamsCallPacket extends Packet {
 registerPacket(SetTeamsCallPacket);
 
 class SetTileCallPacket extends Packet {
-    _id = 122;
-    _lastUpdatedFor = 159;
+    _id = 130;
+    _lastUpdatedFor = 160;
     tile?:Tile;
     block?:nullableString;
     team?:byte;
@@ -1979,7 +1984,7 @@ class SetTileCallPacket extends Packet {
 registerPacket(SetTileCallPacket);
 
 class SetUnitStanceCallPacket extends Packet {
-    _id = 129;
+    _id = 136;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.units;
     player?:int;
@@ -2014,7 +2019,7 @@ class SetUnitStanceCallPacket extends Packet {
 registerPacket(SetUnitStanceCallPacket);
 
 class SetUnitCommandCallPacket extends Packet {
-    _id = 128;
+    _id = 137;
     _lastUpdatedFor = 159;
     player?:int;
     unitIds?:int[];
@@ -2042,7 +2047,7 @@ class SetUnitCommandCallPacket extends Packet {
 registerPacket(SetUnitCommandCallPacket);
 
 class SpawnEffectCallPacket extends Packet {
-    _id = 132;
+    _id = 140;
     _lastUpdatedFor = 159;
     x?:float;
     y?:float;
@@ -2065,9 +2070,9 @@ class SpawnEffectCallPacket extends Packet {
 registerPacket(SpawnEffectCallPacket);
 
 class StateSnapshotCallPacket extends Packet {
-    _id = 133;
+    _id = 141;
     _silent = true;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     waveTime?:float;
     wave?:int;
     enemies?:int;
@@ -2113,14 +2118,14 @@ class StateSnapshotCallPacket extends Packet {
 registerPacket(StateSnapshotCallPacket);
 
 class SyncVariableCallPacket extends Packet {
-    _id = 134;
+    _id = 142;
     _silent = true;
 }
 registerPacket(SyncVariableCallPacket);
 
 class TakeItemsCallPacket extends Packet {
-    _id = 135;
-    _lastUpdatedFor = 159;
+    _id = 143;
+    _lastUpdatedFor = 160;
     build?:BuildPos;
     item?:nullableString;
     amount?:int;
@@ -2144,8 +2149,8 @@ class TakeItemsCallPacket extends Packet {
 registerPacket(TakeItemsCallPacket);
 
 class TileConfigCallPacket extends Packet {
-    _id = 139;
-    _lastUpdatedFor = 159;
+    _id = 147;
+    _lastUpdatedFor = 160;
     player?:int;
     build?:BuildPos;
     value?:ReturnType<typeof TypeIO.readObject>;
@@ -2162,7 +2167,7 @@ class TileConfigCallPacket extends Packet {
 registerPacket(TileConfigCallPacket);
 
 class TileTapCallPacket extends Packet {
-    _id = 140;
+    _id = 148;
     _lastUpdatedFor = 159;
     player?:int;
     tile?:Tile;
@@ -2181,8 +2186,8 @@ class TileTapCallPacket extends Packet {
 registerPacket(TileTapCallPacket);
 
 class TransferInventoryCallPacket extends Packet {
-    _id = 142;
-    _lastUpdatedFor = 159;
+    _id = 150;
+    _lastUpdatedFor = 160;
     player?:int;
     build?:BuildPos;
     write(buf:DataStream) {
@@ -2202,8 +2207,8 @@ class TransferInventoryCallPacket extends Packet {
 registerPacket(TransferInventoryCallPacket);
 
 class TransferItemToCallPacket extends Packet {
-    _id = 144;
-    _lastUpdatedFor = 159;
+    _id = 152;
+    _lastUpdatedFor = 160;
     unit?:NetUnit;
     item?:nullableString;
     amount?:int;
@@ -2230,13 +2235,13 @@ class TransferItemToCallPacket extends Packet {
 registerPacket(TransferItemToCallPacket);
 
 class UnitBlockSpawnCallPacket extends Packet {
-    _id = 146;
+    _id = 154;
     _hidden = config.hideGroup.units;
 }
 registerPacket(UnitBlockSpawnCallPacket);
 
 class UnitBuildingControlSelectCallPacket extends Packet {
-    _id = 147;
+    _id = 155;
     _lastUpdatedFor = 159;
     unit?:NetUnit;
     build?:BuildPos;
@@ -2252,8 +2257,8 @@ class UnitBuildingControlSelectCallPacket extends Packet {
 registerPacket(UnitBuildingControlSelectCallPacket);
 
 class UnitClearCallPacket extends Packet {
-    _id = 149;
-    _lastUpdatedFor = 159;
+    _id = 157;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     player?:int;
     write(){}
@@ -2267,7 +2272,7 @@ class UnitClearCallPacket extends Packet {
 registerPacket(UnitClearCallPacket);
 
 class UnitControlCallPacket extends Packet {
-    _id = 150;
+    _id = 158;
     _lastUpdatedFor = 159;
     _hidden = config.hideGroup.units;
     player?:int;
@@ -2290,8 +2295,8 @@ class UnitControlCallPacket extends Packet {
 registerPacket(UnitControlCallPacket);
 
 class UnitDeathCallPacket extends Packet {
-    _id = 151;
-    _lastUpdatedFor = 159;
+    _id = 159;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     /** The unit's ID */
     uid?:int;
@@ -2314,8 +2319,8 @@ class UnitDeathCallPacket extends Packet {
 registerPacket(UnitDeathCallPacket);
 
 class UnitDespawnCallPacket extends Packet {
-    _id = 152;
-    _lastUpdatedFor = 159;
+    _id = 160;
+    _lastUpdatedFor = 160;
     _silent = config.hideGroup.units;
     unit?:NetUnit;
     write(buf: DataStream): void {
@@ -2336,7 +2341,7 @@ class UnitDespawnCallPacket extends Packet {
 registerPacket(UnitDespawnCallPacket);
 
 class UnitDestroyCallPacket extends Packet {
-    _id = 153;
+    _id = 161;
     _hidden = config.hideGroup.units;
     _lastUpdatedFor = 159;
     /** The unit's ID */
@@ -2360,15 +2365,15 @@ registerPacket(UnitDestroyCallPacket);
 
 
 class UnitEnteredPayloadCallPacket extends Packet {
-    _id = 154;
+    _id = 162;
     _hidden = config.hideGroup.units;
 }
 registerPacket(UnitEnteredPayloadCallPacket);
 
 class UnitSpawnCallPacket extends Packet {
-    _id = 157;
+    _id = 165;
     //_hidden = config.hideGroup.units;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     read(buf: DataStream): void {
         TypeIO.readUnitContainer(buf);
     }
@@ -2376,7 +2381,7 @@ class UnitSpawnCallPacket extends Packet {
 registerPacket(UnitSpawnCallPacket);
 
 class UpdateGameOverCallPacket extends Packet {
-    _id = 159;
+    _id = 167;
     _lastUpdatedFor = 159;
     winner:any;
     write(buf: DataStream): void {
@@ -2392,7 +2397,7 @@ class UpdateGameOverCallPacket extends Packet {
 registerPacket(UpdateGameOverCallPacket);
 
 class WarningToastCallPacket extends Packet {
-    _id = 163;
+    _id = 171;
     _lastUpdatedFor = 159;
     unicode?:nullableInt;
     text?:nullableString;
@@ -2411,7 +2416,7 @@ class WarningToastCallPacket extends Packet {
 registerPacket(WarningToastCallPacket);
 
 class WorldDataBeginCallPacket extends Packet {
-    _id = 164;
+    _id = 172;
     _lastUpdatedFor = 159;
     write(): void {}
     read(): void {}
@@ -2420,144 +2425,150 @@ registerPacket(WorldDataBeginCallPacket);
 
 export const packets = {
     Packet,                                 // Template
-    StreamBegin,                            // ID 0  <| All of                               |
-    StreamChunk,                            // ID 1  <| these should                         |
-    WorldStream,                            // ID 2  <| be constant                          |
-    ConnectPacket,                          // ID 3  <| ------------------------------------ |
-    AssetRequirementStream,                 // ID 4  <| New Packet: 159.2                    |
-    AssetStream,                            // ID 5  <| New Packet: 159.2                    |
-    AdminRequestCallPacket,                 // ID 6   | Pending        |                     |
-    AnnounceCallPacket,                     // ID 7   | Pending        |                     |
-    AssemblerDroneSpawnedCallPacket,        // ID 8   | Pending        |                     |
-    AssemblerUnitSpawnedCallPacket,         // ID 9   | Pending        |                     |
-    AutoDoorToggleCallPacket,               // ID 10  | Confirmed      |                     |
-    BeginBreakCallPacket,                   // ID 11  | Confirmed      |                     |
-    BeginPlaceCallPacket,                   // ID 12  | Confirmed      |                     |
-    BlockSnapshotCallPacket,                // ID 13  | Pending        |                     |
-    BuildDestroyedCallPacket,               // ID 14  | Pending        |                     |
-    BuildHealthUpdateCallPacket,            // ID 15  | Pending        |                     |
-    BuildingControlSelectCallPacket,        // ID 16  | Pending        |                     |
-    ClearItemsCallPacket,                   // ID 17  | Pending        |                     |
-    ClearLiquidsCallPacket,                 // ID 18  | Pending        |                     |
-    ClearObjectivesCallPacket,              // ID 19  | Pending        |                     |
-    ClientBinaryPacketReliableCallPacket,   // ID 20  |                |                     |
-    ClientBinaryPacketUnreliableCallPacket, // ID 21  |                |                     |
-    ClientLogicDataReliableCallPacket,      // ID 22  |                |                     |
-    ClientLogicDataUnreliableCallPacket,    // ID 23  |                |                     |
-    ClientPacketReliableCallPacket,         // ID 24  |                |                     |
-    ClientPacketUnreliableCallPacket,       // ID 25  |                |                     |
-    ClientPlanSnapshotCallPacket,           // ID 26  | Untested       | Updated for 159.2   |
-    ClientPlanSnapshotReceivedCallPacket,   // ID 27  | Pending        |                     |
-    ClientSnapshotCallPacket,               // ID 28  | Mostly Working |                     |
-    CommandBuildingCallPacket,              // ID 29  | Pending        |                     |
-    CommandUnitsCallPacket,                 // ID 30  | Pending        |                     |
-    CompleteObjectiveCallPacket,            // ID 31  | Pending        |                     |
-    ConnectCallPacket,                      // ID 32  | I think?       |                     |
-    ConnectConfirmCallPacket,               // ID 33  | Confirmed      |                     |
-    ConstructFinishCallPacket,              // ID 34  | Confirmed      |                     |
-    CopyToClipboardCallPacket,              // ID 35  | Pending        |                     |
-    CreateBulletCallPacket,                 // ID 36  | Pending        |                     |
-    CreateMarkerCallPacket,                 // ID 37  |                |                     |
-    CreateWeatherCallPacket,                // ID 38  | Pending        |                     |
-    DebugStatusClientCallPacket,            // ID 39  | Pending        |                     |
-    DebugStatusClientUnreliableCallPacket,  // ID 40  | Pending        |                     |
-    DeconstructFinishCallPacket,            // ID 41  | Confirmed      |                     |
-    DeletePlansCallPacket,                  // ID 42  | Pending        |                     |
-    DestroyPayloadCallPacket,               // ID 43  | Pending        |                     |
-    DropItemCallPacket,                     // ID 44  | Confirmed      |                     |
-    EffectCallPacket,                       // ID 45  |                |                     |
-    EffectCallPacket2,                      // ID 46  |                |                     |
-    EffectReliableCallPacket,               // ID 47  | Pending        |                     |
-    EntitySnapshotCallPacket,               // ID 48  | Handler broken |                     |
+    StreamBegin,                            // ID 0  <| All of                                   |
+    StreamChunk,                            // ID 1  <| these should                             |
+    WorldStream,                            // ID 2  <| be constant                              |
+    ConnectPacket,                          // ID 3  <| ---------------------------------------- |
+    AssetRequirementStream,                 // ID 4  <| New Packet: 159                          |
+    AssetStream,                            // ID 5  <| New Packet: 159                          |
+  //TextureStream                           // ID 6  <| New Packet: 160
+    AdminRequestCallPacket,                 // ID 7   | Pending        |                         |
+    AnnounceCallPacket,                     // ID 8   | Pending        |                         |
+    AssemblerDroneSpawnedCallPacket,        // ID 9   | Pending        |                         |
+    AssemblerUnitSpawnedCallPacket,         // ID 10  | Pending        |                         |
+    AutoDoorToggleCallPacket,               // ID 11  | Confirmed      |                         |
+    BeginBreakCallPacket,                   // ID 12  | Confirmed      |                         |
+    BeginPlaceCallPacket,                   // ID 13  | Confirmed      |                         |
+    BlockSnapshotCallPacket,                // ID 14  | Pending        |                         |
+    BuildDestroyedCallPacket,               // ID 15  | Pending        |                         |
+    BuildHealthUpdateCallPacket,            // ID 16  | Pending        |                         |
+    BuildingControlSelectCallPacket,        // ID 17  | Pending        |                         |
+    ClearItemsCallPacket,                   // ID 18  | Pending        |                         |
+    ClearLiquidsCallPacket,                 // ID 19  | Pending        |                         |
+    ClearObjectivesCallPacket,              // ID 20  | Pending        |                         |
+    ClientBinaryPacketReliableCallPacket,   // ID 21  |                |                         |
+    ClientBinaryPacketUnreliableCallPacket, // ID 22  |                |                         |
+    ClientLogicDataReliableCallPacket,      // ID 23  |                |                         |
+    ClientLogicDataUnreliableCallPacket,    // ID 24  |                |                         |
+    ClientPacketReliableCallPacket,         // ID 25  |                |                         |
+    ClientPacketUnreliableCallPacket,       // ID 26  |                |                         |
+    ClientPlanSnapshotCallPacket,           // ID 27  | Untested       |                         |
+    ClientPlanSnapshotReceivedCallPacket,   // ID 28  | Pending        |                         |
+    ClientSnapshotCallPacket,               // ID 29  | Mostly Working |                         |
+    CommandBuildingCallPacket,              // ID 30  | Pending        |                         |
+    CommandUnitsCallPacket,                 // ID 31  | Pending        |                         |
+    CompleteObjectiveCallPacket,            // ID 32  | Pending        |                         |
+    ConnectCallPacket,                      // ID 33  | I think?       |                         |
+    ConnectConfirmCallPacket,               // ID 34  | Confirmed      |                         |
+    ConstructFinishCallPacket,              // ID 35  | Confirmed      |                         |
+    CopyToClipboardCallPacket,              // ID 36  | Pending        |                         |
+    CreateBulletCallPacket,                 // ID 37  | Pending        |                         |
+    CreateMarkerCallPacket,                 // ID 38  |                |                         |
+    CreateWeatherCallPacket,                // ID 39  | Pending        |                         |
+    DebugStatusClientCallPacket,            // ID 40  | Pending        |                         |
+    DebugStatusClientUnreliableCallPacket,  // ID 41  | Pending        |                         |
+    DeconstructFinishCallPacket,            // ID 42  | Confirmed      |                         |
+    DeletePlansCallPacket,                  // ID 43  | Pending        |                         |
+    DestroyPayloadCallPacket,               // ID 44  | Pending        |                         |
+    DropItemCallPacket,                     // ID 45  | Confirmed      |                         |
+    EffectCallPacket,                       // ID 46  |                |                         |
+    EffectCallPacket2,                      // ID 47  |                |                         |
+    EffectReliableCallPacket,               // ID 48  | Pending        |                         |
+    EntitySnapshotCallPacket,               // ID 49  | Handler broken |                         |
+  //FillTileBlocksCallPacket                // ID 50  |                |                         |
+  //FillTileFloorsCallPacket                // ID 51  |                |                         |
+  //FillTileOverlaysCallPacket              // ID 52  |                |                         |
+  //FollowUpMenuCallPacket                  // ID 53  |                |                         |
+    GameOverCallPacket,                     // ID 54  | Pending        |                         |
+  //HiddenSnapshotCallPacket                // ID 55
+  //HideFollowUpMenuCallPacket              // ID 56  |                |                         |
+    HideHudTextCallPacket,                  // ID 57  | Blank packet   |                         |
+  //HideMenuBuilderCallPacket               // ID 58  |                |                         |
+    InfoMessageCallPacket,                  // ID 59  | Confirmed      | Update ID               |
+    InfoPopupCallPacket,                    // ID 60  | Confirmed      | Update ID               |
+    InfoPopupCallPacket2,                   // ID 61  | Pending        | Update ID               |
+    InfoPopupReliableCallPacket,            // ID 62  | Pending        | Update ID               |
+    InfoPopupReliableCallPacket2,           // ID 63  | Pending        | Update ID               |
+    InfoToastCallPacket,                    // ID 64  | Pending        | Update ID               |
+    KickCallPacket,                         // ID 65  | Confirmed      | Update ID               |
+    KickCallPacket2,                        // ID 66  | Pending        | Update ID               |
 
-    GameOverCallPacket,                     // ID 50  | Pending        |                     |
+    LandingPadLandedCallPacket,             // ID 73  | Pending        | Update ID               |
+    LogicExplosionCallPacket,               // ID 74  | Pending        | Update ID               |
 
-    HideHudTextCallPacket,                  // ID 53  | Blank packet   |                     |
-    InfoMessageCallPacket,                  // ID 54  | Confirmed      |                     |
-    InfoPopupCallPacket,                    // ID 55  | Confirmed      |                     |
-    InfoPopupCallPacket2,                   // ID 56  | Pending        |                     |
-    InfoPopupReliableCallPacket,            // ID 57  | Pending        |                     |
-    InfoPopupReliableCallPacket2,           // ID 58  | Pending        |                     |
-    InfoToastCallPacket,                    // ID 59  | Pending        |                     |
-    KickCallPacket,                         // ID 60  | Confirmed      |                     |
-    KickCallPacket2,                        // ID 61  | Pending        |                     |
+    OpenURICallPacket,                      // ID 80  | Confirmed      | Update ID               |
+    PayloadDroppedCallPacket,               // ID 81  | Pending        | Update ID               |
+    PickedBuildPayloadCallPacket,           // ID 82  | Pending        | Update ID               |
+    PickedUnitPayloadCallPacket,            // ID 83  | Pending        | Update ID               |
+    PingCallPacket,                         // ID 84  | Confirmed      | Update ID               |
+    PingLocationCallPacket,                 // ID 85  | Confirmed      | Update ID               |
+    PingResponseCallPacket,                 // ID 86  | Confirmed      | Update ID               |
+    PlayMusicCallPacket,                    // ID 87  | Confirmed      | Update ID               |
+    PlayerDisconnectCallPacket,             // ID 88  | Confirmed      | Update ID               |
+    PlayerSpawnCallPacket,                  // ID 89  | Mostly         | Update ID               |
 
-    LandingPadLandedCallPacket,             // ID 68  | Pending        |                     |
-    LogicExplosionCallPacket,               // ID 69  | Pending        |                     |
+    RequestAssetsCallPacket,                // ID 90  | Pending        | Update ID               |
 
-    OpenURICallPacket,                      // ID 72  | Confirmed      |                     |
-    PayloadDroppedCallPacket,               // ID 73  | Pending        |                     |
-    PickedBuildPayloadCallPacket,           // ID 74  | Pending        |                     |
-    PickedUnitPayloadCallPacket,            // ID 75  | Pending        |                     |
-    PingCallPacket,                         // ID 76  | Confirmed      |                     |
-    PingLocationCallPacket,                 // ID 77  | Confirmed      |                     |
-    PingResponseCallPacket,                 // ID 78  | Confirmed      |                     |
-    PlayMusicCallPacket,                    // ID 79  | Confirmed      |                     |
-    PlayerDisconnectCallPacket,             // ID 80  | Confirmed      |                     |
-    PlayerSpawnCallPacket,                  // ID 81  | Mostly         | Updated for 159.2   |
+    RequestBuildPayloadCallPacket,          // ID 96  | Pending        | Update ID               |
 
-    RequestAssetsCallPacket,                // ID 86  | Pending        |                     |
+    RequestDropPayloadCallPacket,           // ID 98  | Pending        | Update ID               |
+    RequestItemCallPacket,                  // ID 99  | Pending        | Update ID               |
+    RequestUnitPayloadCallPacket,           // ID 100 | Pending        | Update ID               |
+    RequestWorldCallPacket,                 // ID 101 | Pending        | Update ID               |
 
-    RequestBuildPayloadCallPacket,          // ID 88  | Pending        |                     |
+    RotateBlockCallPacket,                  // ID 103 | Confirmed      | Update ID               |
+    SectorCaptureCallPacket,                // ID 104 | Blank Packet   | Update ID               |
+    SendChatMessageCallPacket,              // ID 105 | Confirmed      | Update ID               |
+    SendMessageCallPacket,                  // ID 106 | Confirmed      | Update ID               |
+    SendMessageCallPacket2,                 // ID 107 | Confirmed      | Update ID               |
 
-    RequestDropPayloadCallPacket,           // ID 90  | Pending        |                     |
-    RequestItemCallPacket,                  // ID 91  | Pending        |                     |
-    RequestUnitPayloadCallPacket,           // ID 92  | Pending        |                     |
-    RequestWorldCallPacket,                 // ID 93  | Pending        |                     |
+    SetFlagCallPacket,                      // ID 113 | Pending        | Update ID               |
+    SetFloorCallPacket,                     // ID 114 | Pending        | Update ID               |
 
-    RotateBlockCallPacket,                  // ID 95  | Confirmed      | Work on handler     |
-    SectorCaptureCallPacket,                // ID 96  | Blank Packet   |                     |
-    SendChatMessageCallPacket,              // ID 97  | Confirmed      |                     |
-    SendMessageCallPacket,                  // ID 98  | Confirmed      |                     |
-    SendMessageCallPacket2,                 // ID 99  | Confirmed      |                     |
+    SetItemsCallPacket,                     // ID 118 | Pending        | Update ID               |
 
-    SetFlagCallPacket,                      // ID 105 | Pending        |                     |
-    SetFloorCallPacket,                     // ID 106 | Pending        |                     |
+    SetMapAreaCallPacket,                   // ID 121 | Pending        | Update ID               |
 
-    SetItemsCallPacket,                     // ID 110 | Pending        |                     |
+    SetOverlayCallPacket,                   // ID 123 | Pending        | Update ID               |
 
-    SetMapAreaCallPacket,                   // ID 113 | Pending        |                     |
+    SetPositionCallPacket,                  // ID 125 | Pending        | Update ID               |
+    SetRuleCallPacket,                      // ID 126 | Pending        | Update ID               |
+    SetRulesCallPacket,                     // ID 127 |                | Update ID               |
+    SetTeamCallPacket,                      // ID 128 | Pending        | Update ID               |
+    SetTeamsCallPacket,                     // ID 129 | Pending        | Update ID               |
+    SetTileCallPacket,                      // ID 130 | Pending        | Update ID               |
 
-    SetOverlayCallPacket,                   // ID 115 | Pending        |                     |
+    SetUnitCommandCallPacket,               // ID 136 |                | Update ID               |
+    SetUnitStanceCallPacket,                // ID 137 | Pending        | Update ID               |
 
-    SetPositionCallPacket,                  // ID 117 | Pending        |                     |
-    SetRuleCallPacket,                      // ID 118 | Pending        |                     |
-    SetRulesCallPacket,                     // ID 119 |                |                     |
-    SetTeamCallPacket,                      // ID 120 | Pending        |                     |
-    SetTeamsCallPacket,                     // ID 121 | Pending        |                     |
-    SetTileCallPacket,                      // ID 122 | Pending        |                     |
+    SpawnEffectCallPacket,                  // ID 140 | Pending        | Update ID               |
+    StateSnapshotCallPacket,                // ID 141 | Pending        | Update ID               |
+    SyncVariableCallPacket,                 // ID 142 |                | Update ID               |
+    TakeItemsCallPacket,                    // ID 143 | Pending        | Update ID               |
 
-    SetUnitCommandCallPacket,               // ID 128 |                |                     |
-    SetUnitStanceCallPacket,                // ID 129 | Pending        |                     |
+    TileConfigCallPacket,                   // ID 147 | Broken         | Update ID               |
+    TileTapCallPacket,                      // ID 148 | Confirmed      | Update ID               |
 
-    SpawnEffectCallPacket,                  // ID 132 | Pending        |                     |
-    StateSnapshotCallPacket,                // ID 133 | Pending        | Updated for 159.2   |
-    SyncVariableCallPacket,                 // ID 134 |                |                     |
-    TakeItemsCallPacket,                    // ID 135 | Pending        | Check for 159.2     |
+    TransferInventoryCallPacket,            // ID 150 | Pending        | Update ID               |
 
-    TileConfigCallPacket,                   // ID 139 | Broken         |                     |
-    TileTapCallPacket,                      // ID 140 | Confirmed      |                     |
+    TransferItemToCallPacket,               // ID 152 | Fix later      | Update ID               |
 
-    TransferInventoryCallPacket,            // ID 142 | Pending        |                     |
+    UnitBlockSpawnCallPacket,               // ID 154 |                | Update ID               |
+    UnitBuildingControlSelectCallPacket,    // ID 155 | Pending        | Update ID               |
 
-    TransferItemToCallPacket,               // ID 144 | Fix later      | Check for 159.2     |
+    UnitClearCallPacket,                    // ID 157 | Pending        | Update ID               |
+    UnitControlCallPacket,                  // ID 158 | Pending        | Update ID               |
+    UnitDeathCallPacket,                    // ID 159 | Pending        | Update ID               |
+    UnitDespawnCallPacket,                  // ID 160 | Pending        | Update ID               |
+    UnitDestroyCallPacket,                  // ID 161 | Pending        | Update ID               |
+    UnitEnteredPayloadCallPacket,           // ID 162 |                | Update ID               |
 
-    UnitBlockSpawnCallPacket,               // ID 146 |                |                     |
-    UnitBuildingControlSelectCallPacket,    // ID 147 | Pending        |                     |
+    UnitSpawnCallPacket,                    // ID 165 |                | Update ID               |
 
-    UnitClearCallPacket,                    // ID 149 | Pending        |                     |
-    UnitControlCallPacket,                  // ID 150 | Pending        |                     |
-    UnitDeathCallPacket,                    // ID 151 | Pending        |                     |
-    UnitDespawnCallPacket,                  // ID 152 | Pending        |                     |
-    UnitDestroyCallPacket,                  // ID 153 | Pending        |                     |
-    UnitEnteredPayloadCallPacket,           // ID 154 |                |                     |
+    UpdateGameOverCallPacket,               // ID 167 | Confirmed      | Update ID               |
 
-    UnitSpawnCallPacket,                    // ID 157 |                |                     |
-
-    UpdateGameOverCallPacket,               // ID 159 | Confirmed      |                     |
-
-    WarningToastCallPacket,                 // ID 163 | Confirmed      | TODO: Map charaters |
-    WorldDataBeginCallPacket,               // ID 164 | Blank packet   |                     |
+    WarningToastCallPacket,                 // ID 171 | Confirmed      | Update ID               |
+    WorldDataBeginCallPacket,               // ID 172 | Blank packet   | Update ID               |
 
     get : (n:number) => Packets.get(n)
 }

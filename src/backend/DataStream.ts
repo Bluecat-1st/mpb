@@ -9,6 +9,7 @@ export class DataStream {
     #buf;
     #lim;
     constructor(length:number){
+        if (length < 1) throwError(`Can't make a new buffer with the size <1. Given: [acid]${length}[]`,RangeError);
         this.#buf = Buffer.alloc(length);
         this.#lim = length;
     }
@@ -22,6 +23,11 @@ export class DataStream {
     /** Create a new DataStream object */
     static allocate(length:number) {
         return new this(length);
+    }
+    private checkPos(){
+        if (this.#pos > this.#lim){
+            throwError(`It looks like DataSteam has read past it\'s data limit! (By ${this.#pos-this.#lim} bytes)`,RangeError);
+        }
     }
     /** Move the read pointer back to the beganning and set the buffer limit back to the buffer's length */
     clear() {
@@ -48,9 +54,7 @@ export class DataStream {
     }
     /** Get the bytes left to read in the buffer */
     remaining() {
-        if (this.#pos > this.#lim){
-            console.error(`It looks like DataSteam has read past it\'s data limit! (By ${this.#pos-this.#lim} bytes)`);
-        }
+        this.checkPos();
         return this.#lim - this.#pos;
     }
     /** Set the position of the read pointer */
@@ -105,17 +109,13 @@ export class DataStream {
         if (Buffer.isBuffer(bytes)) {
             this.#buf.copy(bytes, offset, this.#pos, this.#pos + length!);
             this.#pos += length!
-            if (this.#pos > this.#lim){
-                throw new RangeError(`DataStream has read past it\'s data size. (By ${this.#pos-this.#lim} bytes)`);
-            }
+            this.checkPos();
         } else {
             const o = this.#pos;
             const len = (typeof bytes == 'number' ? bytes : 1);
             if (len < 0) throwError(`Invalid read length [acid]${len}[red]!`);
             this.#pos = o + len;
-            if (this.#pos > this.#lim){
-                throw new RangeError(`DataStream has read past it\'s data size. (By ${this.remaining()} bytes)`);
-            }
+            this.checkPos();
             return bytes ? this.#buf.slice(o, bytes + o) : this.#buf.slice(o, o + 1)[0]
         }
     }
@@ -131,26 +131,20 @@ export class DataStream {
     getLong() {
         let o = this.#pos ?? 0;
         this.#pos = o + 8;
-        if (this.#pos > this.#lim){
-            throw new RangeError(`DataStream has read past it\'s data size. (By ${this.#pos-this.#lim} bytes)`);
-        }
+        this.checkPos();
         let value = this.#buf.readInt32BE(o) << 32;
         return (value | this.#buf.readInt32BE(o + 4)) as long;
     }
     getFloat() {
         let o = this.#pos ?? 0;
         this.#pos = o + 4;
-        if (this.#pos > this.#lim){
-            throw new RangeError(`DataStream has read past it\'s data size. (By ${this.#pos-this.#lim} bytes)`);
-        }
+        this.checkPos();
         return this.#buf.readFloatBE(o) as float;
     }
     getDouble() {
         let o = this.#pos ?? 0;
         this.#pos = o + 8;
-        if (this.#pos > this.#lim){
-            throw new RangeError(`DataStream has read past it\'s data size. (By ${this.#pos-this.#lim} bytes)`);
-        }
+        this.checkPos();
         return this.#buf.readDoubleBE(o) as double;
     }
     /** Reads a string without a null check (If the string can be null, use {@link TypeIO.readString}) */
@@ -173,9 +167,7 @@ export class DataStream {
     getUInt():uint{
         let o = this.#pos ?? 0;
         this.#pos = o + 1;
-        if (this.#pos > this.#lim){
-            throw new RangeError(`DataStream has read past it\'s data size. (By ${this.#pos-this.#lim} bytes)`);
-        }
+        this.checkPos();
         return this.#buf.readUint8(o) as uint;
     }
     putShort(data:short) {
@@ -226,6 +218,6 @@ export class DataStream {
     // Debug
     printStatus(info:string|null = null){
         if (!config.dataStreamStatusPrint) return;
-        say(`DataStream:[acid][bold]${this.#pos}[][]/[red][bold]${this.#lim}[][]|${this.#buf.length}${info?` | ${info}`:''}`);
+        say(`DataStream:[acid][bold]${this.#pos}[]/[red][bold]${this.#lim}[]|${this.#buf.length}${info?` | ${info}`:''}`);
     }
 }

@@ -39,6 +39,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
     if (config.escapeMessageFormating){
         p.unformatted = Utils.escapeGlyphs(Utils.escapeColors(p.unformatted));
     }
+    //p.unformatted = Utils.removeFoosChars(p.unformatted);
     say(`Excaped text: ${p.unformatted}`);
     if (p.playersender === -1){
         client.call.sendChatMessage(`Message from user [blue]-1[]: ${p.unformatted}`);
@@ -118,7 +119,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
         }else if (p.unformatted === `${config.commandPrefix} units`) {
             console.log(Object.keys(client.netClient.units as object).join(', '));
             client.call.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
-        }else if (p.unformatted === `${config.commandPrefix} shutdown`) {
+        }else if (p.unformatted === `${config.commandPrefix} disconnect`) {
             client.call.sendChatMessage('Disconnecting...');
             say(`Disconnecting...`);
             client.netClient.reset();

@@ -159,14 +159,14 @@ export function cleanFormatedText(text: string): string {
     return unformatText(stripANSI(text));
 }
 
-export function throwError(text: string): never;
+export function throwError(text: string, errorType?: new (message: string) => Error): never;
 export function throwError(error: Error): never;
-export function throwError(text: string | Error): never {
+export function throwError(text: string | Error, errorType: new (message: string) => Error = Error): never {
     if (text instanceof Error) {
         text.message = formatText(`[red][bold]${text.message}`);
         throw text;
     }
-    throw new Error(formatText(`[red][bold]${text}`));
+    throw new errorType(formatText(`[red][bold]${text}`));
 }
 
 export function warn(text: string) {
