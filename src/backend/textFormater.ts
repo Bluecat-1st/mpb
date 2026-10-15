@@ -170,7 +170,7 @@ export function throwError(text: string | Error, errorType: new (message: string
 }
 
 export function warn(text: string) {
-    console.log(formatText(`[yellow]${text}`));
+    console.warn(formatText(`[yellow]${text}`));
 }
 
 export function say(text: string) {
