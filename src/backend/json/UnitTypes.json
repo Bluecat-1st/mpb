@@ -4,6 +4,7 @@
     "30": "UnitEntity",
     "2": "BlockUnitUnit",
     "24": "LegsUnit",
+    "49": "TargetDummyUnit",
     "45": "ElevationMoveUnit",
     "3": "UnitEntity",
     "31": "UnitEntity",

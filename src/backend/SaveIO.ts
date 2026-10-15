@@ -40,7 +40,7 @@ export class SaveIO {
             const floor = TypeIO.readBlock(buf)!;
             const ore = TypeIO.readBlock(buf)!;
             const consecutives = buf.get();
-            world.create(x as int, y as int, floor, ore, 'space');
+            world.create(x, y, floor, ore, 'space');
             const l = i + 1 + consecutives;
             for (let j = i + 1; j < l; j++) {
                 const x = j % width, y = Math.floor(j / width);
@@ -50,9 +50,10 @@ export class SaveIO {
         }
         for (let i = 0; i < l; i++) {
             const x = i % width, y = Math.floor(i / width);
-            const block = TypeIO.readBlock(buf);;
+            const block = TypeIO.readBlock(buf);
+            if (!block) throwError(`Failed to read block for [yellow](${x},${y})[]!`)
             const tile = world.get(x as int, y as int);
-            if (!tile) throwError(`Failed to get [yellow](${x},${y})[red] tile!`)
+            if (!tile) throwError(`Failed to get [yellow](${x},${y})[] tile!`)
             let isCenter = true;
             const packedCheck = buf.get();
             const hadEntity = (packedCheck & 1) != 0;
@@ -71,11 +72,11 @@ export class SaveIO {
             }
 
             if(hadEntity){
-                isCenter = buf.get() == 1;
+                isCenter = buf.getBoolean();
             }
             if(isCenter){
-                tile.setBlock(block!);
-                // if(tile.build != null) tile.build.enabled = true;
+                tile.setBlock(block);
+                //if(tile.build != null) tile.build[0].enabled = true;
             }
             if(hadData){
                 //tile.setBlock(block);    // x
@@ -93,10 +94,10 @@ export class SaveIO {
                     const offset = buf.position();
                     try{
                         const ver = buf.get();
-                        const build = BlockIO.readAll(buf, block!, (blocksTypes as Record<string,any>)[block!], ver);
+                        const build = BlockIO.readAll(buf, block, (blocksTypes as Record<string,any>)[block], ver);
                         tile.setBuild(build);
                     } catch (e) {
-
+                        throwError(`Failed to read tile entity of block: [acid]${block}[].\n${e}`);
                     }
                     buf.position(offset + length)
                 }
@@ -109,6 +110,14 @@ export class SaveIO {
                 }
                 i += consecutives
             }
+        }
+    }
+    static readEntities(buf:DataStream, world:World){
+        const amount = buf.getShort();
+        for (let i=0;i<amount;i++){
+            const id = buf.getShort();
+            const name = buf.readString();
+            // @todo Store values
         }
     }
     static readTeamBlocks(buf:DataStream){

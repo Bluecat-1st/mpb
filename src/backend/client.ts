@@ -192,7 +192,8 @@ export class Mindustry {
     world:World;
     events:Events;
     utils:Utils;
-    
+    /** Don't set to true */
+    crash = false;
     constructor() {
         this.rules = {};
         this.world = new World();
@@ -326,6 +327,7 @@ export class NetClient extends EventEmitter {
         }
     }
     reset() {
+        say(`[blue][NetClient.reset] Stopping...`)
         this.#client.close();
         this.player && this.player.stop();
     }
@@ -493,6 +495,9 @@ export class NetClient extends EventEmitter {
 
         SaveIO.readMap(buf, this.game.world); // Known to fail. A WIP
         buf.printStatus(`Read map`);
+
+        SaveIO.readEntities(buf, this.game.world);
+        buf.printStatus(`Read entities`)
 
         this.game.world.teamBlocks = SaveIO.readTeamBlocks(buf);
         buf.printStatus(`Read team blocks`);
