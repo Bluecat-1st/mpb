@@ -5,6 +5,7 @@ import { readObjectFancy, Utils } from "./backend/Utills.js";
 import { pingHost } from "./backend/PingHost.js";
 import { Mindustry } from "./backend/client.js";
 import { config } from "./backend/botConfig.js";
+import { Logger } from "./backend/logger.js";
 
 const client = new Mindustry();
 client.createClient();
@@ -18,6 +19,8 @@ client.netClient.on("connect", () => {
     say('Joining...');
     client.netClient.join(config.name, config.uuid, config.usid);
 });
+const foosUsers:number[] = [];
+const bannedRegExp = /67|(six seven)/g;
 client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.SendMessageCallPacket2>) => {
     if (client.netClient?.player?.admin){
         client.call.sendChatMessage(`[#f00]Error: This bot should NOT be an admin!`);
@@ -39,9 +42,18 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
     if (config.escapeMessageFormating){
         p.unformatted = Utils.escapeGlyphs(Utils.escapeColors(p.unformatted));
     }
-    //p.unformatted = Utils.removeFoosChars(p.unformatted);
+    let before = p.unformatted;
+    p.unformatted = Utils.removeFoosChars(p.unformatted);
+    if (p.unformatted !== before && !foosUsers.includes(p.playersender!)){
+        client.call.sendChatMessage(`[accent]Foo's Client[] detected!`);
+        foosUsers.push(p.playersender!);
+    }
     say(`Excaped text: ${p.unformatted}`);
     if (p.playersender === -1){
+        if (bannedRegExp.test(p.unformatted)){
+            client.call.sendChatMessage(`I'm sorry. But the message was blocked.`);
+            return;
+        }
         client.call.sendChatMessage(`Message from user [blue]-1[]: ${p.unformatted}`);
     }
     setTimeout(() => {
@@ -58,7 +70,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     throwError('client.netClient does not exist!');
                 }
                 if (ping) {
-                    client.call.sendChatMessage(`Ping: ${ping}ms`);
+                    client.call.sendChatMessage(`Pong! [acid]${ping}[]ms`);
                     say(`Ping was requested and returned at [green]${ping}[]ms.`);
                 } else {
                     // First of all, how? Might as well play safe:
@@ -70,6 +82,8 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                     warn(`Ping was requested but timed out!`);
                 }
             });
+        }if(p.unformatted === `${config.commandPrefix} ping jb`) {
+            client.call.sendChatMessage('jb ping');
         }else if (p.unformatted.trim().startsWith(`${config.commandPrefix} moveto `)) {
             const args = p.unformatted!.slice(`${config.commandPrefix} moveto `.length).split(' ');
             if (args.length !== 2) {
@@ -118,19 +132,28 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             client.call.sendChatMessage(info.replaceAll('\n', ' '));
         }else if (p.unformatted === `${config.commandPrefix} units`) {
             console.log(Object.keys(client.netClient.units as object).join(', '));
-            client.call.sendChatMessage(Object.keys(client.netClient.units as object).join(', '));
+            client.call.sendChatMessage(`${Object.keys(client.netClient.units as object).length} unit${Object.keys(client.netClient.units as object).length === 1 ?``:`s`} | ${Object.keys(client.netClient.units as object).join(', ')}`);
         }else if (p.unformatted === `${config.commandPrefix} disconnect`) {
             client.call.sendChatMessage('Disconnecting...');
             say(`Disconnecting...`);
             client.netClient.reset();
         }else if (p.unformatted.startsWith(`${config.commandPrefix} say `)) {
             const arg = p.unformatted!.slice(`${config.commandPrefix} say `.length).trim();
-            if (arg === `67`){
+            if (bannedRegExp.test(Utils.escapeColors(arg))){
                 client.call.sendChatMessage(`[#f00]NO`);
                 return;
             }
             const text = `(By [blue]${p.playersender ?? 'unknown sender'}[]) ${arg}`;
             client.call.sendChatMessage(text ?? `[red]Error`);
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} todo `)) {
+            const arg = p.unformatted!.slice(`${config.commandPrefix} todo `.length).trim();
+            Logger.appendText(arg,'../../todo.txt');
+            client.call.sendChatMessage('[gold]Added to the TODO list!');
+        }else if (p.unformatted.startsWith(`jb todo `)) {
+            const arg = p.unformatted!.slice(`jb todo `.length).trim();
+            Logger.appendText(`For JB: ${arg}`,'../../todo.txt');
+            const text = ['Huh','okay... Let me write that down....','Uh, what?','Cool!','I need ideas for things to say....','I should add that to [acid]my[] todo!','Uh, hi, do you have a clipboard, I need to write something down.'];
+            client.call.sendChatMessage(text[Math.round((Math.random()*text.length))] ?? `You making a todo list?`);
         }else if (p.unformatted === `${config.commandPrefix} respawn`){
             client.netClient.player?.respawn();
         }else if (p.unformatted.startsWith(`${config.commandPrefix} setPlayerVar `)){
@@ -202,7 +225,7 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
                 }
             }
         }else if (p.unformatted.startsWith(`${config.commandPrefix} assist `)){
-            const arg = p.unformatted!.slice(`${config.commandPrefix}`.length).trim();
+            const arg = p.unformatted!.slice(`${config.commandPrefix} assist `.length).trim();
             client.netClient.player?.controller.assist(arg);
         }else if (p.unformatted === `${config.commandPrefix} printUnitID`){
             if (client.netClient.player?.id){
@@ -238,6 +261,15 @@ client.netClient.on("SendMessageCallPacket2", (p: InstanceType<typeof Packets.Se
             }else{
                 client.call.sendChatMessage(`Aww...`);
             }
+        }else if (p.unformatted.startsWith(`${config.commandPrefix} dice`)){
+            const arg = p.unformatted.slice(`${config.commandPrefix} dice`.length);
+            let num = Number.parseInt(arg);
+            if (Number.isNaN(num)) num = 6;
+            client.call.sendChatMessage(`Dice: ${Math.random()*num|0}`);
+        }else if (p.unformatted === `mpb do a crash`){
+            client.crash = true
+        }else if (p.unformatted === `${config.commandPrefix} foos`){
+            client.call.sendChatMessage(`${foosUsers.length} foos user${foosUsers.length === 1 ? ``:`s`} found: ${foosUsers.join(', ')}`);
         }
     }, Math.floor(Math.random() * 1000));
 });
@@ -262,3 +294,7 @@ pingHost(config.server.port, config.server.ip, (data, err) => {
         client.netClient.connect(data.port, data.ip);
     }
 });
+
+// Expose the bot to DevTools
+// @ts-ignore
+globalThis.client = client;

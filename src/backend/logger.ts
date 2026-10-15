@@ -46,6 +46,12 @@ export class Logger {
         }
     }
 
+    static appendText(message:string,file:'session.log'|'../../todo.txt'){
+        const dir = this.getSessionDir();
+        const logMessage = `${message}\n`;
+        fs.appendFileSync(path.join(dir, file), logMessage);
+    }
+
     /** Adds a message to the session log, by default with a timestamp. */
     static log(message:string, showTime=true){
         try {
