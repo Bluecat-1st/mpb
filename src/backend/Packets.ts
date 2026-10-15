@@ -482,7 +482,7 @@ registerPacket(BuildDestroyedCallPacket);
 
 class BuildHealthUpdateCallPacket extends Packet {
     _id = 16;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     buildings?:int[];
     write(buf:DataStream) {
         TypeIO.writeIntSeq(buf,this.buildings!)
@@ -741,7 +741,7 @@ registerPacket(CommandBuildingCallPacket);
 
 class CommandUnitsCallPacket extends Packet {
     _id = 31;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     player?:int;
     unitIds?:int[];
@@ -869,7 +869,7 @@ registerPacket(CopyToClipboardCallPacket);
 
 class CreateBulletCallPacket extends Packet {
     _id = 37;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** Bullet Type */
     type?:short;
     team?:byte;
@@ -1314,7 +1314,7 @@ registerPacket(KickCallPacket);
 
 class KickCallPacket2 extends Packet {
     _id = 66;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     reason?:KickReason
     read(buf: DataStream): void {
         const i = buf.get();
@@ -1334,9 +1334,83 @@ class KickCallPacket2 extends Packet {
 }
 registerPacket(KickCallPacket2);
 
+class LabelReliableCallPacket extends Packet {
+    _id = 70;
+    _lastUpdatedFor = 160;
+    message?:nullableString;
+    duration?:float;
+    worldx?:float;
+    worldy?:float;
+    write(buf: DataStream): void {
+        TypeIO.writeString(buf,this.message!);
+        buf.putFloat(this.duration!);
+        buf.putFloat(this.worldx!);
+        buf.putFloat(this.worldy!);
+    }
+    read(buf: DataStream): void {
+        this.message = TypeIO.readString(buf);
+        this.duration = buf.getFloat();
+        this.worldx = buf.getFloat();
+        this.worldy = buf.getFloat();
+    }
+}
+registerPacket(LabelReliableCallPacket);
+
+class LabelReliableCallPacket2 extends Packet {
+    _id = 71;
+    _lastUpdatedFor = 160;
+    message?:nullableString;
+    id?:int;
+    duration?:float;
+    worldx?:float;
+    worldy?:float;
+    write(buf: DataStream): void {
+        TypeIO.writeString(buf,this.message!);
+        buf.putInt(this.id!);
+        buf.putFloat(this.duration!);
+        buf.putFloat(this.worldx!);
+        buf.putFloat(this.worldy!);
+    }
+    read(buf: DataStream): void {
+        this.message = TypeIO.readString(buf);
+        this.id = buf.getInt();
+        this.duration = buf.getFloat();
+        this.worldx = buf.getFloat();
+        this.worldy = buf.getFloat();
+    }
+}
+registerPacket(LabelReliableCallPacket2);
+
+class LabelReliableCallPacket3 extends Packet {
+    _id = 72;
+    _lastUpdatedFor = 160;
+    message?:nullableString;
+    id?:int;
+    duration?:float;
+    worldx?:float;
+    worldy?:float;
+    /** @todo Seperate the flags */
+    flags?:int;
+    write(buf: DataStream): void {
+        TypeIO.writeString(buf,this.message!);
+        buf.putInt(this.id!);
+        buf.putFloat(this.duration!);
+        buf.putFloat(this.worldx!);
+        buf.putFloat(this.worldy!);
+    }
+    read(buf: DataStream): void {
+        this.message = TypeIO.readString(buf);
+        this.id = buf.getInt();
+        this.duration = buf.getFloat();
+        this.worldx = buf.getFloat();
+        this.worldy = buf.getFloat();
+    }
+}
+registerPacket(LabelReliableCallPacket3);
+
 class LandingPadLandedCallPacket extends Packet {
     _id = 73;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     tile?:Tile;
     write(buf: DataStream): void {
         TypeIO.writeTile(buf,this.tile!);
@@ -1403,7 +1477,7 @@ registerPacket(OpenURICallPacket);
 
 class PayloadDroppedCallPacket extends Packet {
     _id = 81;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     unit?:NetUnit;
     x?:float;
     y?:float;
@@ -1422,7 +1496,7 @@ registerPacket(PayloadDroppedCallPacket);
 
 class PickedBuildPayloadCallPacket extends Packet {
     _id = 82;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     unit?:NetUnit;
     build?:BuildPos;
     onGround?:boolean;
@@ -1536,7 +1610,7 @@ registerPacket(PlayMusicCallPacket);
 
 class PlayerDisconnectCallPacket extends Packet {
     _id = 88;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     playerid?:int;
     write(buf: DataStream): void {
@@ -1788,6 +1862,27 @@ class SendMessageCallPacket2 extends Packet {
 }
 registerPacket(SendMessageCallPacket2);
 
+class SetCameraPositionCallPacket extends Packet {
+    _id = 112;
+    _lastUpdatedFor = 160;
+    x?:float;
+    y?:float;
+    write(buf: DataStream): void {
+        buf.putFloat(this.x!);
+        buf.putFloat(this.y!);
+    }
+    read(buf: DataStream): void {
+        this.x = buf.getFloat();
+        this.y = buf.getFloat();
+    }
+    handleClient(nc: NetClient): void {
+        if (!nc.player) return;
+        nc.player.controller.viewX = this.x!;
+        nc.player.controller.viewY = this.y!;
+    }
+}
+registerPacket(SetCameraPositionCallPacket);
+
 class SetFlagCallPacket extends Packet {
     _id = 113;
     _lastUpdatedFor = 160;
@@ -1867,7 +1962,7 @@ registerPacket(SetMapAreaCallPacket);
 
 class SetOverlayCallPacket extends Packet {
     _id = 123;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     tile?:Tile;
     overlay?:nullableString;
     write(buf: DataStream): void {
@@ -1994,12 +2089,14 @@ class SetUnitStanceCallPacket extends Packet {
     stance?:byte;
     enable?:boolean;
     write(buf:DataStream){
-        TypeIO.writeEntity(buf,this.player!);
+        //TypeIO.writeEntity(buf,this.player!);
         TypeIO.writeInts(buf,this.unitIds!);
         TypeIO.writeStance(buf,this.stance!);
         buf.putBoolean(this.enable!);
     }
     read(buf:DataStream){
+        this._incompletPacket = true;
+        return;
         this.player = TypeIO.readEntity(buf);
         this.unitIds = TypeIO.readInts(buf);
         this.stance = TypeIO.readStance(buf)!;
@@ -2273,7 +2370,7 @@ registerPacket(UnitClearCallPacket);
 
 class UnitControlCallPacket extends Packet {
     _id = 158;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     _hidden = config.hideGroup.units;
     player?:int;
     /** `[type, id]` */
@@ -2343,7 +2440,7 @@ registerPacket(UnitDespawnCallPacket);
 class UnitDestroyCallPacket extends Packet {
     _id = 161;
     _hidden = config.hideGroup.units;
-    _lastUpdatedFor = 159;
+    _lastUpdatedFor = 160;
     /** The unit's ID */
     uid?:int;
     write(buf:DataStream) {
@@ -2484,44 +2581,48 @@ export const packets = {
   //HideFollowUpMenuCallPacket              // ID 56  |                |                         |
     HideHudTextCallPacket,                  // ID 57  | Blank packet   |                         |
   //HideMenuBuilderCallPacket               // ID 58  |                |                         |
-    InfoMessageCallPacket,                  // ID 59  | Confirmed      | Update ID               |
-    InfoPopupCallPacket,                    // ID 60  | Confirmed      | Update ID               |
-    InfoPopupCallPacket2,                   // ID 61  | Pending        | Update ID               |
-    InfoPopupReliableCallPacket,            // ID 62  | Pending        | Update ID               |
-    InfoPopupReliableCallPacket2,           // ID 63  | Pending        | Update ID               |
-    InfoToastCallPacket,                    // ID 64  | Pending        | Update ID               |
-    KickCallPacket,                         // ID 65  | Confirmed      | Update ID               |
-    KickCallPacket2,                        // ID 66  | Pending        | Update ID               |
+    InfoMessageCallPacket,                  // ID 59  | Confirmed      |                         |
+    InfoPopupCallPacket,                    // ID 60  | Confirmed      |                         |
+    InfoPopupCallPacket2,                   // ID 61  | Pending        |                         |
+    InfoPopupReliableCallPacket,            // ID 62  | Pending        |                         |
+    InfoPopupReliableCallPacket2,           // ID 63  | Pending        |                         |
+    InfoToastCallPacket,                    // ID 64  | Pending        |                         |
+    KickCallPacket,                         // ID 65  | Confirmed      |                         |
+    KickCallPacket2,                        // ID 66  | Pending        |                         |
 
-    LandingPadLandedCallPacket,             // ID 73  | Pending        | Update ID               |
-    LogicExplosionCallPacket,               // ID 74  | Pending        | Update ID               |
+    LabelReliableCallPacket,                // ID 70  | Pending        |                         |         
+    LabelReliableCallPacket2,               // ID 71  | Pending        |                         |
+    LabelReliableCallPacket3,               // ID 72  | Pending        |                         |
+    LandingPadLandedCallPacket,             // ID 73  | Pending        |                         |
+    LogicExplosionCallPacket,               // ID 74  | Pending        |                         |
 
-    OpenURICallPacket,                      // ID 80  | Confirmed      | Update ID               |
-    PayloadDroppedCallPacket,               // ID 81  | Pending        | Update ID               |
-    PickedBuildPayloadCallPacket,           // ID 82  | Pending        | Update ID               |
-    PickedUnitPayloadCallPacket,            // ID 83  | Pending        | Update ID               |
-    PingCallPacket,                         // ID 84  | Confirmed      | Update ID               |
-    PingLocationCallPacket,                 // ID 85  | Confirmed      | Update ID               |
-    PingResponseCallPacket,                 // ID 86  | Confirmed      | Update ID               |
-    PlayMusicCallPacket,                    // ID 87  | Confirmed      | Update ID               |
-    PlayerDisconnectCallPacket,             // ID 88  | Confirmed      | Update ID               |
-    PlayerSpawnCallPacket,                  // ID 89  | Mostly         | Update ID               |
+    OpenURICallPacket,                      // ID 80  | Confirmed      |                         |
+    PayloadDroppedCallPacket,               // ID 81  | Pending        |                         |
+    PickedBuildPayloadCallPacket,           // ID 82  | Pending        |                         |
+    PickedUnitPayloadCallPacket,            // ID 83  | Pending        |                         |
+    PingCallPacket,                         // ID 84  | Confirmed      |                         |
+    PingLocationCallPacket,                 // ID 85  | Confirmed      |                         |
+    PingResponseCallPacket,                 // ID 86  | Confirmed      |                         |
+    PlayMusicCallPacket,                    // ID 87  | Confirmed      |                         |
+    PlayerDisconnectCallPacket,             // ID 88  | Confirmed      |                         |
+    PlayerSpawnCallPacket,                  // ID 89  | Mostly         |                         |
 
-    RequestAssetsCallPacket,                // ID 90  | Pending        | Update ID               |
+    RequestAssetsCallPacket,                // ID 90  | Pending        |                         |
 
-    RequestBuildPayloadCallPacket,          // ID 96  | Pending        | Update ID               |
+    RequestBuildPayloadCallPacket,          // ID 96  | Pending        |                         |
 
-    RequestDropPayloadCallPacket,           // ID 98  | Pending        | Update ID               |
-    RequestItemCallPacket,                  // ID 99  | Pending        | Update ID               |
-    RequestUnitPayloadCallPacket,           // ID 100 | Pending        | Update ID               |
-    RequestWorldCallPacket,                 // ID 101 | Pending        | Update ID               |
+    RequestDropPayloadCallPacket,           // ID 98  | Pending        |                         |
+    RequestItemCallPacket,                  // ID 99  | Pending        |                         |
+    RequestUnitPayloadCallPacket,           // ID 100 | Pending        |                         |
+    RequestWorldCallPacket,                 // ID 101 | Pending        |                         |
 
-    RotateBlockCallPacket,                  // ID 103 | Confirmed      | Update ID               |
-    SectorCaptureCallPacket,                // ID 104 | Blank Packet   | Update ID               |
-    SendChatMessageCallPacket,              // ID 105 | Confirmed      | Update ID               |
-    SendMessageCallPacket,                  // ID 106 | Confirmed      | Update ID               |
-    SendMessageCallPacket2,                 // ID 107 | Confirmed      | Update ID               |
+    RotateBlockCallPacket,                  // ID 103 | Confirmed      |                         |
+    SectorCaptureCallPacket,                // ID 104 | Blank Packet   |                         |
+    SendChatMessageCallPacket,              // ID 105 | Confirmed      |                         |
+    SendMessageCallPacket,                  // ID 106 | Confirmed      |                         |
+    SendMessageCallPacket2,                 // ID 107 | Confirmed      |                         |
 
+    SetCameraPositionCallPacket,            // ID 112 | Pending        |                         |          
     SetFlagCallPacket,                      // ID 113 | Pending        | Update ID               |
     SetFloorCallPacket,                     // ID 114 | Pending        | Update ID               |
 
@@ -2595,21 +2696,21 @@ for (let i=0;i<255;i++){
     if (packetInstance._incompletPacket){
         placeholderPacketCount++;
         if (!config.hideIncompletPacketWarning){
-            warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) is a placholder.`)
+            warn(`Packet [acid][italic]${packetName}[] (ID:[acid]${i}[]) is a placholder.`)
         }
     }
     if (!packetVersion){
-        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) does not have a version!`);
+        warn(`Packet [acid][italic]${packetName}[] (ID:[acid]${i}[]) does not have a version!`);
         packetsToUpdate++;
     }else if (packetVersion < config.version){
-        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) may need updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
+        warn(`Packet [acid][italic]${packetName}[] (ID:[acid]${i}[]) may need updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
         packetsToUpdate++;
     }else if (Math.floor(packetVersion) > config.version){
-        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) either has a incorrect version or the global version config needs updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
+        warn(`Packet [acid][italic]${packetName}[] (ID:[acid]${i}[]) either has a incorrect version or the global version config needs updating! Packet version: [acid]${packetVersion}[]. Current version: [acid]${config.version}[].`);
         packetsToUpdate++;
     }
     if (!(packetName in packets)){
-        warn(`Packet [acid][italic]${packetName}[][] (ID:[acid]${i}[]) is not defined in the packet lookup object but is registered.`);
+        warn(`Packet [acid][italic]${packetName}[] (ID:[acid]${i}[]) is not defined in the packet lookup object but is registered.`);
     }
 }
 say(`[white]${packetCount}[] packets loaded.`);
