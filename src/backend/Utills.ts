@@ -122,13 +122,14 @@ export class Utils{
 		return Utils.toTilePos(x,y,p as any) as any;
 	}
 
+	private static foosPatern = new RegExp(/[\u0F80-\u107F]{2}$/g);
 	/**
 	 * Remove Foo's client charaters.
 	 * 
 	 * ~~Stolen~~ borrowed from fish-commands.
 	 */
 	static removeFoosChars(text:string):string{
-		return text.replaceAll(/[\u0F80-\u107F]{2}$/,"");
+		return text.replaceAll(this.foosPatern,"");
 	}
 }
 
@@ -137,13 +138,16 @@ export function formatValue(v:unknown):string{
 		case "string":return `[yellow]${v}[]`;
 		case "number":return `[acid]${v}[]`;
 		case "bigint":return `[acid]${v}[]`;
-		case "boolean":return v?'[green][bold]True[][]':'[red][bold]False[bold][]';
+		case "boolean":return v?'[green][bold]True[]':'[red][bold]False[]';
 		case "symbol":return `[blue]Symbol: ${v.toString()}[]`;
 		case "undefined":return `[orange]Undefined[]`;
 		case "object":{
 			if (v === null){
 				return `[orange]Null[]`;
 			}else{
+				if (v instanceof Error){
+					return `[blue]Error [red][bold]${v.name}[]: ${v.message}[]`
+				}
 				if ('toString' in v){
 					return `[blue]Object: ${v.toString()}[]`;
 				}
