@@ -11,11 +11,12 @@
   "type": "module",
   "main": "src/core.ts",
   "scripts": {
-    "start": "tsc && node dist/core.js",
+    "start": "tsc && node dist/headless.js",
     "build": "tsc",
     "runOld": "node dist/headless.js",
     "headless": "tsx src/headless.ts",
-    "gui": "tsx src/gui/index.ts"
+    "gui": "tsx src/gui/index.ts",
+    "debug": "tsx watch --inspect src/headless.ts"
   },
   "dependencies": {
     "js-crc": "^0.3.1",
