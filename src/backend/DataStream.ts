@@ -9,7 +9,7 @@ export class DataStream {
     #buf;
     #lim;
     constructor(length:number){
-        if (length < 1) throwError(`Can't make a new buffer with the size <1. Given: [acid]${length}[]`,RangeError);
+        if (length < 0) throwError(`Can't make a new buffer with the size <0. Given: [acid]${length}[]`,RangeError);
         this.#buf = Buffer.alloc(length);
         this.#lim = length;
     }
@@ -26,7 +26,7 @@ export class DataStream {
     }
     private checkPos(){
         if (this.#pos > this.#lim){
-            throwError(`It looks like DataSteam has read past it\'s data limit! (By ${this.#pos-this.#lim} bytes)`,RangeError);
+            throwError(`It looks like DataStream has read past it\'s data limit! (By ${this.#pos-this.#lim} bytes)`,RangeError);
         }
     }
     /** Move the read pointer back to the beganning and set the buffer limit back to the buffer's length */

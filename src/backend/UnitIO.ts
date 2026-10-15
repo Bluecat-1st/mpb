@@ -227,16 +227,89 @@ export class UnitIO {
 				break;
 			}
 			case `CrawlUnit`:{
-
-				break;
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack,statuses, team, type,
+					updateBuilding, vel, position:{x,y}
+				}
+				return result;
 			}
 			case `ElevationMoveUnit`:{
-
-				break;
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, controller, elevation, flag,
+					health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack,statuses, team, type,
+					updateBuilding, vel, position:{x,y}
+				}
+				return result;
 			}
 			case `Fire`:{
-
-				break;
+				const lifetime = buf.getFloat();
+				const tile = TypeIO.readTileReliable(buf);
+				const time = buf.getFloat();
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const results:Unit = {
+					lifetime, tile, time, position:{x,y}
+				}
+				return results;
 			}
 			case `LegsUnit`:{
 				const abilities = TypeIO.readAbilities(buf);
@@ -559,6 +632,44 @@ export class UnitIO {
 			case `WorldLabel`:{
 
 				break;
+			}
+			case `TargetDummyUnit`:{
+				const abilities = TypeIO.readAbilities(buf);
+				const aimX = buf.getFloat();
+				const aimY = buf.getFloat();
+				const building = TypeIO.readBuilding(buf);
+				const controller = TypeIO.readController(buf);
+				const elevation = buf.getFloat();
+				const flag = buf.getDouble();
+				const health = buf.getFloat();
+				const shooting = buf.getBoolean();
+				const mineTile = TypeIO.readTileReliable(buf); // TODO: Switch to readTile
+				const mounts = TypeIO.readMounts(buf);
+				const plans = TypeIO.readPlansQueue(buf);
+				const rotation = buf.getFloat();
+				const shield = buf.getFloat();
+				const spawnedByCore = buf.getBoolean();
+				const stack = TypeIO.readItems(buf);
+				const statLen = buf.getInt();
+				const statuses:ReturnType<typeof TypeIO.readStatus>[] = [];
+				for (let i=0;i<statLen;i++){
+					statuses.push(
+						TypeIO.readStatus(buf)
+					);
+				}
+				const team = TypeIO.readTeam(buf);
+				const type = this.utils.getContentByID('unit',buf.getShort());
+				const updateBuilding = buf.getBoolean();
+				const vel = TypeIO.readVec2(buf);
+				const x = buf.getFloat();
+				const y = buf.getFloat();
+				const result:Unit = {
+					abilities, aimX, aimY, building, controller, elevation,
+					flag, health, shooting, mineTile, mounts, plans, rotation,
+					shield, spawnedByCore, stack,statuses, team, type,
+					updateBuilding, vel, position:{x,y}
+				}
+				return result;
 			}
 			default:{
 				throwError(`Unknown type ${formatValue(type)}!`);

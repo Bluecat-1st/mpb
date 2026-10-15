@@ -155,6 +155,8 @@ export class Controller{
 		this.player.unit.px = this.pointerX;
 		this.player.unit.py = this.pointerY;
 
+		if (Number.isNaN(this.rotation)) this.rotation = 0;
+
 		if (this.spin && this.rotation){
 			this.rotationDelta += this.spinSpeed;
 		}

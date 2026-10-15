@@ -37,11 +37,11 @@ export const config = {
         IPs:
         * localhost:6567        | The localhost server
         * 127.0.0.1:6567        | Just the IP version of localhost.
-        * 51.81.48.124:6568 | Fish Sandbox (Public server)
+        * 51.81.48.124:6568     | Fish Sandbox (Public server)
 
         */
-        ip:"localhost",
-        port:6567
+        ip:"51.81.48.124",
+        port:6568
     },
     name:"mpb (Bot)",
     commandPrefix:"mpb",

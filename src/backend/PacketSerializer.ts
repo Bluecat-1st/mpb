@@ -69,15 +69,19 @@ export class PacketSerializer {
                         buf.position(buf.position() + this.#temp.position());
                     }
                     if (((!packet._silent) || config.showAllPackets) && !config.hidePacketReseives){
-                        say(`Reseived packet [${packet._incompletPacket?'yellow':'acid'}][italic]${namePacket(id)}[][] (ID:[acid]${id}[]${packet._incompletPacket?`, [yellow]Incomplete Packet[]`:''}${packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version?`, [yellow]this packet may need updating (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])[]`:''})`);
+                        say(`Reseived packet [${packet._incompletPacket?'yellow':'acid'}][italic]${namePacket(id)}[] (ID:[acid]${id}[]${packet._incompletPacket?`, [yellow]Incomplete Packet[]`:''}${packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version?`, [yellow]this packet may need updating (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])[]`:''})`);
                     }else if (packet._lastUpdatedFor===null||packet._lastUpdatedFor<config.version){
-                        warn(`Packet [acid][italic]${namePacket(packet)}[][] (ID:[acid]${packet._id}[]) may need updating. (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])`);
+                        warn(`Packet [acid][italic]${namePacket(packet)}[] (ID:[acid]${packet._id}[]) may need updating. (Current version:[acid]${packet._lastUpdatedFor??'Unknown Version'}[])`);
                     }
                     return packet;
                 }else{
                     warn(`Unknown packet ID [acid]${id}`);
                 }
                 buf.clear();
+                if (this.nc.game.crash){
+                    this.nc.game.crash = false;
+                    throwError('Why do you force me to crash?');
+                }
                 return null;
             }
         }catch(err){
@@ -92,11 +96,11 @@ export class PacketSerializer {
                 e = e.replaceAll(userInfo().username,'<host>');
                 this.nc.game.call.sendChatMessage(`[#f00]Error parsing packet [acid]${namePacket(id)}[]: ${e}[#f00]!`);
                 if (config.crashOnPacketReadError) this.nc.reset();
-                throwError(err.stack ?? err.message);
+                //throwError(err.stack ?? err.message);
             } else {
                 this.nc.game.call.sendChatMessage(`[#f00]Unknown error parsing packet [acid]${namePacket(id)}[]!`)
                 if (config.crashOnPacketReadError) this.nc.reset();
-                throw err;
+                //throw err;
             }
         }
     }

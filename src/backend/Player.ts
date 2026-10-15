@@ -205,6 +205,8 @@ export class Player {
 
 		this.controller.doTick();
 
+		if (Number.isNaN(this.unit.rotation)) this.unit.rotation = <float>0;
+
 		this.clientSnap();
 	}
 	/** Send a client snapshot */
