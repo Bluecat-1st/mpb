@@ -1,6 +1,6 @@
 ## Note:
 Mindustry has updated to V160!
-But that also means I have a lot to fix before mpb is ready to go from V159 to V160... This will take a while.
+And MPB is currently in middle of being migrated, but there are some new bugs such as it being impossible to push MPB anymore.
 
 # `mpb`, a Mindustry bot.
 As of current writing, this repository acts as place to see how this works, however, most of the code does not (yet) do stuff (AKA, most of [Packets.ts](src/backend/Packets.ts)) or is very broken (Like movement), so if your trying to make something like this, ~~don't, use Java so you can use the source code, please~~ you can use this as a starting point, but I would try to redo some of the stuff as even I'm still having issues figuring out how this works.
@@ -16,7 +16,7 @@ The `node-mindustry-main` folder is the original code this project was based off
 * Respawning the player unit.
 
 ## Some thing that *don't* work:
-* Movement, `mpb` can't move by itself, *but* can be push around by other units
+* Movement, `mpb` can't move by itself, ~~*but* can be push around by other units~~
 * Loading the map, that is a WIP, I have not finished reworking that.
 * Sensing units, even itself, which *may* be cause for movement to not work, although it may just be `mpb`'s postion it not being sent correctly, IDK.
 * Know the name of players, but that is not important in `mpb`'s current state.
